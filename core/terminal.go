@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync/atomic"
 
 	"github.com/aymanbagabas/go-pty"
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
@@ -13,8 +14,9 @@ import (
 // Terminal manages a PTY-backed shell process.
 // Uses ConPTY on Windows and /dev/ptmx on Linux/macOS.
 type Terminal struct {
-	ctx context.Context
-	ptm pty.Pty
+	ctx    context.Context
+	ptm    pty.Pty
+	closed atomic.Bool // set by Close() so the read goroutine won't emit a redundant terminal-exit event
 }
 
 // NewTerminal creates an uninitialised Terminal.
@@ -48,14 +50,17 @@ func (t *Terminal) StartWithID(ctx context.Context, id, shell string) error {
 
 	// Read loop: forward PTY output to the frontend using the scoped event name.
 	go func() {
-		buf := make([]byte, 4096)
+		buf := make([]byte, 32768) // 32 KiB — handles full-screen redraws without excessive IPC round-trips
 		for {
 			n, err := ptm.Read(buf)
 			if n > 0 {
 				wailsRuntime.EventsEmit(t.ctx, "terminal-output:"+id, string(buf[:n]))
 			}
 			if err != nil {
-				if err != io.EOF {
+				// Only emit terminal-exit when the process died on its own.
+				// If Close() was called first (t.closed == true) the SessionManager
+				// already emitted terminal-exit:id — don't do it twice.
+				if err != io.EOF && !t.closed.Load() {
 					wailsRuntime.EventsEmit(t.ctx, "terminal-exit:"+id, err.Error())
 				}
 				return
@@ -86,6 +91,7 @@ func (t *Terminal) Resize(cols, rows int) error {
 // Close shuts down the PTY and the shell process.
 func (t *Terminal) Close() {
 	if t.ptm != nil {
+		t.closed.Store(true) // signal read goroutine not to emit terminal-exit
 		t.ptm.Close()
 	}
 }

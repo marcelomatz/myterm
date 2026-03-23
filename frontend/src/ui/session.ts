@@ -110,6 +110,17 @@ export async function createSession(
     // NOTE: only block repeats for our own shortcuts — character repetition
     // (holding 'a' to get 'aaaaa') must still reach xterm normally.
     if (ev.ctrlKey) {
+      // Ctrl+V — paste from clipboard directly here (no synthetic re-dispatch).
+      // Handling it inside xterm's custom handler avoids the double-paste that
+      // would occur if we re-dispatched to App.svelte (svelte:window fires once
+      // AND the capture listener on window fires once → two pastes).
+      if (!ev.shiftKey && !ev.altKey && ev.key === 'v' && !ev.repeat) {
+        navigator.clipboard.readText()
+          .then(text => { if (text) term.paste(text); })
+          .catch(() => { /* clipboard empty or denied */ });
+        return false; // prevent xterm from sending \x16 to the PTY
+      }
+
       const isOurShortcut =
         (ev.shiftKey && 'WwDdEeTt'.includes(ev.key)) ||
         ev.key === ',' ||
@@ -117,13 +128,8 @@ export async function createSession(
 
       if (isOurShortcut) {
         if (ev.repeat) return false; // suppress repeated shortcut presses
-        // xterm.js calls stopPropagation() on all keydown events it handles —
-        // returning false here makes xterm skip its own handling so the
-        // event reaches the window listener in App.svelte.
         // Re-fire a synthetic clone on `document` so App.svelte's
-        // svelte:window onkeydown still receives it.
-        // isTrusted on dispatched events is always false — App.svelte uses
-        // this to skip the original (real) event and only process ours.
+        // svelte:window onkeydown receives it despite xterm's stopPropagation.
         document.dispatchEvent(new KeyboardEvent('keydown', {
           key: ev.key,
           code: ev.code,
@@ -134,7 +140,7 @@ export async function createSession(
           bubbles: true,
           cancelable: true,
         }));
-        return false; // tell xterm: don't process this key itself
+        return false;
       }
     }
     return true;

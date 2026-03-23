@@ -1,19 +1,55 @@
-# README
+# myterm
 
-## About
+A fast, modern terminal emulator for Windows built with [Wails](https://wails.io), [xterm.js](https://xtermjs.org), and Go.
 
-This is the official Wails Vanilla-TS template.
+## Features
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+- **Tabs** — open multiple shells side-by-side
+- **Split panes** — horizontal and vertical splits with drag-to-resize
+- **Shell picker** — auto-detects PowerShell, pwsh, cmd, WSL, Git Bash, MSYS2, Cygwin and more
+- **Themes** — multiple colour presets with live preview in settings
+- **GPU-accelerated rendering** — WebGL renderer with automatic Canvas fallback
+- **Copy-on-select** — optional clipboard copy when text is selected
+- **Keyboard-first** — everything reachable without a mouse
 
-## Live Development
+## Keyboard Shortcuts
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
+| Shortcut | Action |
+|---|---|
+| `Ctrl+Shift+T` | New tab (same shell) |
+| `Ctrl+Tab` / `Ctrl+Shift+Tab` | Next / previous tab |
+| `Ctrl+Shift+D` | Split horizontally |
+| `Ctrl+Shift+E` | Split vertically |
+| `Ctrl+Shift+W` | Close active pane |
+| `Ctrl+,` | Open/close settings |
+| `Ctrl+=` | Increase font size |
+| `Ctrl+-` | Decrease font size |
+| `Ctrl+V` | Paste from clipboard |
 
-## Building
+## Requirements
 
-To build a redistributable, production mode package, use `wails build`.
+- Windows 10 1903+ (ConPTY)
+- WebView2 runtime (ships with Windows 11; auto-installed on Windows 10 by the installer)
+
+## Development
+
+```bash
+# Install Wails CLI
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+# Run in dev mode (hot reload)
+wails dev
+
+# Build production binary
+wails build
+```
+
+# Build installer
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\build-installer.ps1
+```
+
+## License
+
+MIT — © Marcelo Matzembacher

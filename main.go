@@ -34,8 +34,9 @@ func main() {
 			Assets: assets,
 		},
 
-		OnStartup:  app.Startup,
-		OnShutdown: app.Shutdown,
+		OnStartup:     app.Startup,
+		OnShutdown:    app.Shutdown,
+		OnBeforeClose: app.ConfirmClose,
 
 		Bind: []interface{}{
 			app,

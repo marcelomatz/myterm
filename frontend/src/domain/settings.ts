@@ -104,23 +104,24 @@ export interface AppSettings {
   colorPresetId: string;  // id from COLOR_PRESETS
   // Scrollback
   scrollback: number;     // 500–10000
-  copyOnSelect: boolean;
   // Shell default
   defaultShell: string;   // empty = auto-detect
+  // Clipboard
+  copyOnSelect: boolean;  // copy to clipboard on text selection
 }
 
 const STORAGE_KEY = 'myterm.settings';
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  fontFamily: '"Cascadia Code", "JetBrains Mono", monospace',
+  fontFamily: '"Cascadia Code", monospace',
   fontSize: 14,
   lineHeight: 1.2,
   cursorBlink: true,
   cursorStyle: 'block',
   colorPresetId: 'cyber-noir',
   scrollback: 1000,
-  copyOnSelect: false,
   defaultShell: '',
+  copyOnSelect: false,
 };
 
 // In-memory singleton so callers don't read localStorage repeatedly.

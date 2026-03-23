@@ -8,6 +8,13 @@
   "frontend:dev:serverUrl": "auto",
   "author": {
     "name": "Marcelo Matzembacher",
-    "email": "omarcelomatz@gmail.com"
+    "email": "[EMAIL_ADDRESS]"
+  },
+  "info": {
+    "companyName": "MatzLabs",
+    "productName": "myterm",
+    "productVersion": "0.1.0",
+    "copyright": "© 2026 Marcelo Matzembacher",
+    "comments": "A fast, modern terminal emulator for Windows"
   }
 }

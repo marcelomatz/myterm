@@ -13,8 +13,16 @@
   import type { AppState, Tab, PaneLeaf, PaneNode } from './domain/types';
   import { pickShell } from './ui/shell-picker';
   import { shellMeta } from './domain/shell-meta';
+  import { getSettings, saveSettings } from './domain/settings';
+  import { applySettingsToAll } from './ui/settings-apply';
+  import { EventsOn } from './bridge/events';
+  import { ForceQuit } from './bridge/backend';
 
   const SETTINGS_TAB_ID = '__settings__';
+
+  // ── Close-confirmation modal ───────────────────────────────────────────────
+  /** > 0 = modal visible, value is the number of open sessions. */
+  let confirmCloseCount = $state(0);
 
   // ── App state ──────────────────────────────────────────────────────────────
   let tabs        = $state<Tab[]>([]);
@@ -41,8 +49,19 @@
     return leaf?.shell ?? '';
   }
 
-  function findLeafBySession(tab: Tab, sessionId: string): PaneLeaf | undefined {
-    return collectLeaves(tab.root).find(l => l.sessionId === sessionId);
+  /** All leaves across all terminal tabs. */
+  function allLeaves(): PaneLeaf[] {
+    return tabs
+      .filter(t => t.id !== SETTINGS_TAB_ID)
+      .flatMap(t => collectLeaves(t.root));
+  }
+
+  /** Active leaf (focused pane in the active tab). */
+  function activeLeaf(): PaneLeaf | undefined {
+    const tab = activeTab();
+    if (!tab || tab.id === SETTINGS_TAB_ID) return undefined;
+    const leaves = collectLeaves(tab.root);
+    return leaves.find(l => l.sessionId === tab.activeLeafId) ?? leaves[0];
   }
 
   // ── Tab management ─────────────────────────────────────────────────────────
@@ -172,7 +191,7 @@
     // would destroy it first.
     renderPane(tab.root, terminalEl, (sessionId) => {
       tab.activeLeafId = sessionId;
-      const leaf = findLeafBySession(tab, sessionId);
+      const leaf = collectLeaves(tab.root).find(l => l.sessionId === sessionId);
       leaf?.term.focus();
     });
   }
@@ -286,10 +305,14 @@
         case 'T': e.preventDefault(); addTab({ shell: activeShell() }); break;
       }
     }
+
+    // Ctrl+, — settings
     if (e.ctrlKey && e.key === ',') {
       e.preventDefault();
       toggleSettingsTab();
     }
+
+    // Ctrl+Tab / Ctrl+Shift+Tab — cycle tabs
     if (e.ctrlKey && e.key === 'Tab') {
       e.preventDefault();
       const idx = tabs.findIndex(t => t.id === activeTabId);
@@ -297,6 +320,30 @@
         ? (idx - 1 + tabs.length) % tabs.length
         : (idx + 1) % tabs.length;
       if (tabs[next]) activateTab(tabs[next].id);
+    }
+
+    // Ctrl+= or Ctrl++ — font size up
+    if (e.ctrlKey && !e.shiftKey && !e.altKey && (e.key === '=' || e.key === '+')) {
+      e.preventDefault();
+      const s = getSettings();
+      const next = Math.min(28, s.fontSize + 1);
+      if (next !== s.fontSize) {
+        s.fontSize = next;
+        saveSettings(s);
+        applySettingsToAll(allLeaves(), s);
+      }
+    }
+
+    // Ctrl+- — font size down
+    if (e.ctrlKey && !e.shiftKey && !e.altKey && e.key === '-') {
+      e.preventDefault();
+      const s = getSettings();
+      const next = Math.max(8, s.fontSize - 1);
+      if (next !== s.fontSize) {
+        s.fontSize = next;
+        saveSettings(s);
+        applySettingsToAll(allLeaves(), s);
+      }
     }
   }
 
@@ -321,9 +368,33 @@
         collectLeaves(t.root).some(l => l.sessionId === sessionId));
       if (ownerTab) onSessionExit(ownerTab.id, sessionId);
     });
+
+    // Ctrl+, must be registered as a CAPTURE-phase listener on window BEFORE
+    // addTab() creates xterm. xterm also uses capture (on its textarea), but our
+    // window-level capture fires first in the propagation chain:
+    //   window(capture) → document → … → .xterm > textarea(xterm capture)
+    // stopPropagation() here ensures the event never reaches xterm at all,
+    // preventing any double-dispatch via the synthetic-event path.
+    const handleCtrlComma = (e: KeyboardEvent) => {
+      if (e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey && e.key === ',' && !e.repeat) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleSettingsTab();
+      }
+    };
+    window.addEventListener('keydown', handleCtrlComma, true);
+
+    // Listen for the confirm-close event emitted by Go's ConfirmClose hook.
+    EventsOn('confirm-close', (n: number) => { confirmCloseCount = n; });
+
     // Open first tab using settings default shell (no picker)
     addTab();
+
+    return () => {
+      window.removeEventListener('keydown', handleCtrlComma, true);
+    };
   });
+
 
   // Derived: which view to show in the workspace div
   const tab = $derived(activeTab());
@@ -371,3 +442,93 @@
     style:inset="0"
   ></div>
 </div>
+
+<!-- ── Close-confirmation modal ──────────────────────────────────────────── -->
+{#if confirmCloseCount > 0}
+  <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+  <div class="modal-backdrop" onclick={() => confirmCloseCount = 0}>
+    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+    <div class="modal-box" onclick={e => e.stopPropagation()}>
+      <h3 class="modal-title">Fechar MyTerm?</h3>
+      <p class="modal-body">
+        {confirmCloseCount} {confirmCloseCount === 1 ? 'sessão aberta' : 'sessões abertas'}.
+        Os processos em execução serão encerrados.
+      </p>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick={() => confirmCloseCount = 0}>Cancelar</button>
+        <button class="btn-close" onclick={() => ForceQuit()}>Fechar</button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<style>
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+
+  .modal-box {
+    background: #1e1e2e;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 28px 32px;
+    width: 360px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    animation: modal-in 0.15s ease;
+  }
+
+  @keyframes modal-in {
+    from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)  scale(1); }
+  }
+
+  .modal-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #cdd6f4;
+    margin: 0 0 10px;
+  }
+
+  .modal-body {
+    font-size: 0.875rem;
+    color: #a6adc8;
+    margin: 0 0 22px;
+    line-height: 1.5;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .btn-cancel, .btn-close {
+    padding: 7px 18px;
+    border-radius: 7px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .btn-cancel {
+    background: rgba(255,255,255,0.07);
+    color: #cdd6f4;
+  }
+
+  .btn-close {
+    background: #f38ba8;
+    color: #1e1e2e;
+  }
+
+  .btn-cancel:hover { opacity: 0.8; }
+  .btn-close:hover  { opacity: 0.85; }
+</style>

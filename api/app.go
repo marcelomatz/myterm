@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"myterm/core"
+	"sync/atomic"
+
+	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 const (
@@ -19,8 +22,9 @@ const (
 // App is the Wails application struct — it owns the SessionManager lifecycle.
 // This is the only struct bound to Wails; it delegates all logic to core.
 type App struct {
-	ctx      context.Context
-	sessions *core.SessionManager
+	ctx       context.Context
+	sessions  *core.SessionManager
+	forceQuit atomic.Bool // set by ForceQuit() to break the OnBeforeClose loop
 }
 
 // NewApp creates a new App instance.
@@ -46,6 +50,37 @@ func (a *App) Startup(ctx context.Context) { a.startup(ctx) }
 
 // Shutdown exposes the shutdown hook for wails.Run options binding.
 func (a *App) Shutdown(ctx context.Context) { a.shutdown(ctx) }
+
+// ConfirmClose is the OnBeforeClose hook for wails.Run.
+// When 2+ sessions are open it emits a frontend event that shows an in-app
+// modal and returns true to cancel the OS close. The frontend calls
+// ForceQuit() to actually quit after the user confirms.
+//
+// OnBeforeClose fires AGAIN when runtime.Quit is called (from ForceQuit).
+// forceQuit is set atomically before Quit() so the second invocation returns
+// false immediately, allowing the app to exit.
+func (a *App) ConfirmClose(_ context.Context) (prevent bool) {
+	// ForceQuit already set — this is the second call triggered by runtime.Quit.
+	if a.forceQuit.Load() {
+		return false
+	}
+	n := a.sessions.Count()
+	if n < 2 {
+		return false // single session — close without asking
+	}
+	// Signal the frontend to show the confirmation modal.
+	wailsRuntime.EventsEmit(a.ctx, "confirm-close", n)
+	return true // prevent OS close; ForceQuit() handles the real quit
+}
+
+// ForceQuit terminates the application programmatically.
+// Called by the frontend after the user confirms the close modal.
+// Sets forceQuit BEFORE calling Quit so the re-entrant OnBeforeClose call
+// (which Wails triggers on every Quit) is a no-op.
+func (a *App) ForceQuit() {
+	a.forceQuit.Store(true)
+	wailsRuntime.Quit(a.ctx)
+}
 
 // DetectShells returns the list of available shell executables on this system.
 // Called once by the frontend at startup to populate the shell picker.

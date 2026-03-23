@@ -103,3 +103,11 @@ func (s *SessionManager) CloseAll() {
 		t.Close()
 	}
 }
+
+// Count returns the number of currently active sessions.
+func (s *SessionManager) Count() int {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return len(s.sessions)
+}
+
