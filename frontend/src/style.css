@@ -17,6 +17,17 @@ body {
   flex-direction: column;
 }
 
+/* Svelte mounts into #app — make it inherit the flex column layout */
+#app {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+
 /* ── Title bar ──────────────────────────────────────────────────────────── */
 
 #titlebar {

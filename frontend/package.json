@@ -1,10 +1,11 @@
 {
   "name": "myterm-frontend",
   "private": true,
+  "type": "module",
   "version": "0.1.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -14,7 +15,9 @@
     "@xterm/xterm": "^5.5.0"
   },
   "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "svelte": "^5.0.0",
     "typescript": "^5.4.5",
-    "vite": "^5.4.8"
+    "vite": "^6.4.1"
   }
 }

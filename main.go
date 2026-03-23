@@ -9,18 +9,20 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
+
+	"myterm/api"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
 
 func main() {
-	app := NewApp()
+	app := api.NewApp()
 
 	err := wails.Run(&options.App{
 		Title:     "MyTerm",
-		Width:     1000,
-		Height:    600,
+		Width:     1300,
+		Height:    700,
 		MinWidth:  400,
 		MinHeight: 300,
 		Frameless: true,
@@ -32,8 +34,8 @@ func main() {
 			Assets: assets,
 		},
 
-		OnStartup:  app.startup,
-		OnShutdown: app.shutdown,
+		OnStartup:  app.Startup,
+		OnShutdown: app.Shutdown,
 
 		Bind: []interface{}{
 			app,

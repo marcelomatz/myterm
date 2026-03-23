@@ -27,11 +27,6 @@ function splitFamily(family: string | undefined): string[] {
 /**
  * Wait for all FontFace objects in document.fonts that match the
  * given family names (strings) to finish loading.
- *
- * Mirrors the behaviour of loadFonts() from @xterm/addon-web-fonts:
- * - Waits for document.fonts.ready first (stylesheet parsing complete).
- * - For each family name, finds matching FontFace entries and loads them.
- * - Rejects if a requested family name has no @font-face rule registered.
  */
 function _loadFonts(families: string[]): Promise<FontFace[]> {
   const ffs: FontFace[] = [];
@@ -41,11 +36,7 @@ function _loadFonts(families: string[]): Promise<FontFace[]> {
   const toLoad: FontFace[] = [];
   for (const name of families) {
     const matched = ffs.filter(ff => unquote(ff.family) === name);
-    if (!matched.length) {
-      // Family not registered (system font or @font-face not yet parsed).
-      // Skip silently — terminal will use the system fallback.
-      continue;
-    }
+    if (!matched.length) continue;
     toLoad.push(...matched);
   }
   return Promise.all(toLoad.map(ff => ff.load()));
@@ -64,17 +55,14 @@ function _loadFonts(families: string[]): Promise<FontFace[]> {
  */
 export async function ensureFont(fontFamily: string): Promise<void> {
   try {
-    // Wait for stylesheet parsing to complete first.
     await document.fonts.ready;
     const families = splitFamily(fontFamily);
-    // Only attempt to load web fonts (skip generic families like "monospace").
     const generics = new Set(['monospace', 'serif', 'sans-serif', 'cursive', 'fantasy', 'system-ui', 'ui-monospace']);
     const webFamilies = families.filter(f => !generics.has(f));
     if (webFamilies.length) {
       await _loadFonts(webFamilies);
     }
   } catch (err) {
-    // Offline or font not registered — log and continue with fallback.
     console.warn('[myterm] font preload failed, falling back:', err);
   }
 }

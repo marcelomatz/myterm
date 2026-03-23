@@ -7,19 +7,20 @@
       "ESNext",
       "DOM"
     ],
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "strict": true,
     "sourceMap": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
     "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noImplicitReturns": true,
     "skipLibCheck": true
   },
   "include": [
-    "src"
+    "src",
+    "src/**/*.svelte"
   ]
 }

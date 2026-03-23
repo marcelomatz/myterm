@@ -1,6 +1,6 @@
-import { DetectShells } from '../wailsjs/go/main/App';
-import { getSettings } from './settings';
-import { shellMeta } from './shell-meta';
+import { DetectShells } from '../bridge/backend';
+import { getSettings } from '../domain/settings';
+import { shellMeta } from '../domain/shell-meta';
 
 /**
  * Shows a compact popover anchored to `anchorEl` (the new-tab button) and

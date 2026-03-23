@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"context"
@@ -34,7 +34,7 @@ func (s *SessionManager) Start(ctx context.Context) {
 func (s *SessionManager) NewSession(shell string) (string, error) {
 	id := uuid.NewString()
 
-	t := newTerminal()
+	t := NewTerminal()
 	if err := t.StartWithID(s.ctx, id, shell); err != nil {
 		return "", fmt.Errorf("NewSession: %w", err)
 	}

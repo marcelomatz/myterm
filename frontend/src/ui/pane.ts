@@ -1,7 +1,45 @@
-import { Write, Resize } from '../wailsjs/go/main/App';
-import { EventsOn } from '../wailsjs/runtime/runtime';
-import { createSession, destroySession } from './session';
-import type { PaneLeaf, PaneNode, PaneSplit } from './types';
+import { Write, Resize } from '../bridge/backend';
+import { EventsOn } from '../bridge/events';
+import { createSession, destroySession, attachGpuRenderer } from './session';
+import type { PaneLeaf, PaneNode, PaneSplit } from '../domain/types';
+
+// ─── Non-reactive DOM element map ────────────────────────────────────────────
+//
+// PaneLeaf is stored inside Svelte $state — any property write on it triggers
+// the reactive system.  DOM element references must live OUTSIDE the $state
+// tree to prevent renderPane (called inside a $effect) from causing an
+// effect_update_depth_exceeded infinite loop.
+//
+// Each session gets ONE persistent <div class="pane"> created at wire-time and
+// stored here.  renderPane() only ever MOVES that div — it never innerHTML=''
+// on terminalEl, which would destroy a sibling session's .xterm.
+//
+const leafElMap = new Map<string, HTMLElement>();
+
+/** Returns the current DOM container for a leaf, or undefined if not mounted. */
+export function getLeafEl(sessionId: string): HTMLElement | undefined {
+  return leafElMap.get(sessionId);
+}
+
+/**
+ * Creates (once) and returns the persistent pane <div> for this session.
+ * The element is kept alive for the lifetime of the session even when
+ * its owning tab is not active.
+ */
+export function getOrCreateLeafEl(sessionId: string): HTMLElement {
+  let el = leafElMap.get(sessionId);
+  if (!el) {
+    el = document.createElement('div');
+    el.className = 'pane';
+    leafElMap.set(sessionId, el);
+  }
+  return el;
+}
+
+/** Removes the DOM container entry for a leaf (call when session is destroyed). */
+export function deleteLeafEl(sessionId: string): void {
+  leafElMap.delete(sessionId);
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -17,35 +55,60 @@ function findLeaf(node: PaneNode, sessionId: string): PaneLeaf | null {
 
 // ─── Render ──────────────────────────────────────────────────────────────────
 
-/**
- * Recursively renders a pane tree into `container`, mounting xterm instances
- * and attaching drag-to-resize dividers.
- */
 export function renderPane(
   node: PaneNode,
   container: HTMLElement,
   _onFocus: (sessionId: string) => void,
 ): void {
-  container.innerHTML = '';
-
   if (node.kind === 'leaf') {
-    container.className = 'pane';
-    node.el = container;
+    // ── Leaf: mount the persistent pane div into container ──────────────────
+    //
+    // Each session has exactly ONE persistent <div class="pane"> stored in
+    // leafElMap.  We move it into `container` rather than creating/destroying
+    // DOM — this prevents innerHTML='' from accidentally killing the .xterm of
+    // a session that was previously rendered in the same container (e.g. when
+    // switching tabs that share terminalEl).
 
-    // Move the xterm DOM element into this container if it isn't already there.
-    // term.element is set after term.open() is called; it may live in a
-    // temporary container created during createSession → addTab.
-    if (node.term.element && node.term.element.parentElement !== container) {
-      container.appendChild(node.term.element);
+    const leafEl = getOrCreateLeafEl(node.sessionId);
+
+    // Clear `container` safely: remove all children EXCEPT leafEl itself
+    // (in a same-tab re-render leafEl might already be a child).
+    Array.from(container.children).forEach(c => { if (c !== leafEl) c.remove(); });
+
+    // Move leafEl into container if not already there.
+    if (leafEl.parentElement !== container) {
+      container.appendChild(leafEl);
     }
 
-    container.addEventListener('mousedown', () => _onFocus(node.sessionId));
-    // Fit after paint.
-    requestAnimationFrame(() => { node.fit.fit(); node.term.focus(); });
+    // Ensure class is set (may have been cleared by a previous render).
+    container.className = '';
+    container.style.display = 'block';
+    leafEl.className = 'pane';
+
+    if (leafEl.querySelector('.xterm')) {
+      // Terminal already opened in a previous render — just re-fit and focus.
+      leafEl.addEventListener('mousedown', () => _onFocus(node.sessionId), { once: true });
+      requestAnimationFrame(() => { node.fit.fit(); node.term.focus(); });
+    } else {
+      // First render — container is live in the DOM; open the terminal now.
+      // term.open() must only be called once per Terminal instance.
+      node.term.open(leafEl);
+      leafEl.addEventListener('mousedown', () => _onFocus(node.sessionId), { once: true });
+      attachGpuRenderer(node.term, renderer => {
+        node.renderer = renderer;
+        node.fit.fit();
+        node.term.focus();
+      });
+    }
     return;
   }
 
-  // Split node — build a two-cell grid.
+  // Split node — clear container and build a two-cell grid.
+  // Safe to innerHTML='' here because split containers are ephemeral
+  // wrappers — the persistent leafEl divs are children of cellA/cellB,
+  // not of container itself, so they won't be destroyed.
+  container.innerHTML = '';
+  container.className = '';
   renderSplit(node, container, _onFocus);
 }
 
@@ -55,10 +118,14 @@ function renderSplit(
   _onFocus: (sessionId: string) => void,
 ): void {
   container.className = split.dir === 'h' ? 'split split-h' : 'split split-v';
+  container.style.display = 'grid';
 
   const cellA = document.createElement('div');
   const divider = document.createElement('div');
   const cellB = document.createElement('div');
+
+  cellA.style.cssText = 'width:100%;height:100%;overflow:hidden;min-width:0;min-height:0;';
+  cellB.style.cssText = 'width:100%;height:100%;overflow:hidden;min-width:0;min-height:0;';
 
   divider.className = split.dir === 'h' ? 'divider divider-h' : 'divider divider-v';
 
@@ -138,14 +205,10 @@ export async function splitLeaf(
   root: PaneNode,
   activeSessionId: string,
   dir: 'h' | 'v',
-  workspace: HTMLElement,
 ): Promise<{ newRoot: PaneNode; newLeaf: PaneLeaf }> {
-  const container = document.createElement('div');
-  container.className = 'pane';
-  // We need the leaf's DOM element — temporarily append to workspace off-screen.
-  workspace.appendChild(container);
-
-  const newLeaf = await createSession(container);
+  // createSession no longer calls term.open() — rendering happens lazily in
+  // renderPane() when the leaf is placed into a live DOM container.
+  const newLeaf = await createSession();
 
   const newRoot = replaceLeaf(root, activeSessionId, {
     kind: 'split',
@@ -164,7 +227,10 @@ export async function removeLeaf(
   removeId: string,
 ): Promise<PaneNode | null> {
   const leaf = findLeaf(root, removeId);
-  if (leaf) await destroySession(leaf);
+  if (leaf) {
+    await destroySession(leaf);
+    deleteLeafEl(removeId);
+  }
   return pruneLeaf(root, removeId);
 }
 
@@ -189,9 +255,12 @@ export function wireLeaf(leaf: PaneLeaf): void {
   leaf.term.onData(data => Write(leaf.sessionId, data));
   leaf.term.onResize(({ cols, rows }) => Resize(leaf.sessionId, cols, rows));
 
-  // Shell exited — notify via a DOM event so main.ts can handle tab close.
+  // Shell exited — notify via a DOM event so App.svelte can handle tab close.
+  // Dispatch from the leaf's current container (from leafElMap) so the event
+  // bubbles up through the live workspace DOM.
   EventsOn('terminal-exit:' + leaf.sessionId, () => {
-    leaf.el.dispatchEvent(new CustomEvent('session-exit', {
+    const el = leafElMap.get(leaf.sessionId);
+    el?.dispatchEvent(new CustomEvent('session-exit', {
       bubbles: true,
       detail: { sessionId: leaf.sessionId },
     }));

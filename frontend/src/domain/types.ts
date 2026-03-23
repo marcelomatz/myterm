@@ -13,7 +13,8 @@ export interface PaneLeaf {
   fit: FitAddon;
   /** WebGL or Canvas renderer addon — used for clearTextureAtlas on font change. */
   renderer: WebglAddon | CanvasAddon | null;
-  el: HTMLElement;        // the DOM container for this xterm instance
+  // NOTE: el (DOM container) is NOT stored here — it lives in pane.ts:leafElMap
+  // to keep it out of Svelte's reactive $state tree and avoid infinite $effect loops.
 }
 
 export interface PaneSplit {

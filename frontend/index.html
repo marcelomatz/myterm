@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>myterm</title>
-    <link rel="stylesheet" href="/src/style.css" />
+
     <!-- Monospace fonts used in settings font picker -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,31 +12,10 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Source+Code+Pro:wght@400;500&display=swap"
     />
-
   </head>
   <body>
-    <!-- Draggable title bar -->
-    <div id="titlebar">
-      <div class="controls">
-        <button id="btn-close" class="wbtn" title="Close"></button>
-        <button id="btn-min"   class="wbtn" title="Minimise"></button>
-        <button id="btn-max"   class="wbtn" title="Maximise"></button>
-      </div>
-      <span class="title">myterm</span>
-      <div style="width:54px;display:flex;align-items:center;justify-content:flex-end">
-        <button id="settings-btn" title="Settings (Ctrl+,)">⚙</button>
-      </div>
-    </div>
-
-    <!-- Tab bar -->
-    <div id="tabbar">
-      <!-- .tab-item elements are injected here by main.ts -->
-      <button id="new-tab-btn" title="New tab (Ctrl+Shift+T)">+</button>
-    </div>
-
-    <!-- Split pane workspace -->
-    <div id="workspace"></div>
-
+    <!-- Svelte app root — TitleBar, TabBar, and #workspace are all rendered by App.svelte -->
+    <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

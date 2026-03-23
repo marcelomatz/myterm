@@ -2,4 +2,9 @@ build/bin
 node_modules
 frontend/dist
 frontend/wailsjs
+frontend/node_modules
 frontend/src/assets/fonts/*
+
+# Compiled binaries
+*.exe
+*.exe~

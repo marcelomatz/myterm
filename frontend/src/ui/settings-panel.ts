@@ -1,9 +1,10 @@
 import {
   AppSettings, COLOR_PRESETS, DEFAULT_SETTINGS,
-  getSettings, saveSettings, applySettingsToAll, getPreset,
-} from './settings';
-import type { PaneLeaf } from './types';
-import { DetectShells } from '../wailsjs/go/main/App';
+  getSettings, saveSettings, getPreset,
+} from '../domain/settings';
+import { applySettingsToAll } from './settings-apply';
+import type { PaneLeaf } from '../domain/types';
+import { DetectShells } from '../bridge/backend';
 
 const FONT_OPTIONS = [
   { label: 'Cascadia Code',  value: '"Cascadia Code", "JetBrains Mono", monospace' },
@@ -192,7 +193,7 @@ export function buildSettingsPane(
 
       const hdr = document.createElement('div');
       hdr.className = 'tset-preview-hdr';
-      hdr.textContent = '── LIVE PREVIEW \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500';
+      hdr.textContent = '── LIVE PREVIEW ────────────────────────';
       pane.appendChild(hdr);
 
       const term = document.createElement('div');
@@ -237,13 +238,13 @@ export function buildSettingsPane(
         // ── npm test
         L( prompt('~/projects/myapp'), s('pv-cmd','npm'), ' ', s('pv-arg','test -- --reporter=verbose') ),
         blank(),
-        L( ' ', s('pv-ok','\u2713 PASS'), '  src/__tests__/', s('pv-cyan','settings.test.ts'), s('pv-dim','  (2.3s)') ),
-        L( '   ', s('pv-pass','\u2713 '), s('pv-dim','loads defaults correctly '), s('pv-cyan','(12ms)') ),
-        L( '   ', s('pv-pass','\u2713 '), s('pv-dim','saves and restores settings '), s('pv-cyan','(8ms)') ),
-        L( '   ', s('pv-pass','\u2713 '), s('pv-dim','applies theme to panel '), s('pv-cyan','(4ms)') ),
+        L( ' ', s('pv-ok','✓ PASS'), '  src/__tests__/', s('pv-cyan','settings.test.ts'), s('pv-dim','  (2.3s)') ),
+        L( '   ', s('pv-pass','✓ '), s('pv-dim','loads defaults correctly '), s('pv-cyan','(12ms)') ),
+        L( '   ', s('pv-pass','✓ '), s('pv-dim','saves and restores settings '), s('pv-cyan','(8ms)') ),
+        L( '   ', s('pv-pass','✓ '), s('pv-dim','applies theme to panel '), s('pv-cyan','(4ms)') ),
         blank(),
-        L( ' ', s('pv-fail','\u2717 FAIL'), '  src/__tests__/', s('pv-red','preview.test.ts') ),
-        L( '   ', s('pv-fail','\u2717 '), s('pv-dim','theme matches preset') ),
+        L( ' ', s('pv-fail','✗ FAIL'), '  src/__tests__/', s('pv-red','preview.test.ts') ),
+        L( '   ', s('pv-fail','✗ '), s('pv-dim','theme matches preset') ),
         L( '     ', s('pv-dim','Expected: '), s('pv-str','"pampulha-night"') ),
         L( '     ', s('pv-dim','Received: '), s('pv-red','"cyber-noir"') ),
         blank(),

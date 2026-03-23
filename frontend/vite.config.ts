@@ -1,7 +1,9 @@
 import { defineConfig } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  plugins: [svelte()],
   build: {
     // Output goes to frontend/dist — that's what Go embeds.
     outDir: "dist",
