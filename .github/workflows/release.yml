@@ -60,7 +60,19 @@ jobs:
           node-version: '20'
 
       - name: Install NSIS
-        run: choco install nsis --yes
+        run: |
+          choco install nsis --yes --no-progress
+          # Atualizar PATH da sessão atual (choco não faz isso por padrão)
+          $env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [System.Environment]::GetEnvironmentVariable('Path', 'User')
+          # Verificar que makensis está disponível
+          $makensis = Get-Command makensis -ErrorAction SilentlyContinue
+          if ($makensis) {
+            Write-Host "makensis encontrado: $($makensis.Source)"
+          } else {
+            Write-Error "makensis NÃO encontrado no PATH após instalação do NSIS!"
+            exit 1
+          }
+        shell: pwsh
 
       - name: Install Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
@@ -70,7 +82,13 @@ jobs:
         run: npm ci
 
       - name: Build Windows (com instalador NSIS)
-        run: wails build --nsis --platform windows/amd64
+        shell: pwsh
+        run: |
+          # Garantir que makensis está no PATH desta sessão
+          $env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [System.Environment]::GetEnvironmentVariable('Path', 'User')
+          Write-Host "makensis: $(Get-Command makensis -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source)"
+          wails build --nsis --platform windows/amd64
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Preparar assets Windows
         shell: pwsh
