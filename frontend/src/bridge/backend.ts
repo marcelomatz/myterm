@@ -13,11 +13,23 @@ export {
   Resize,
 } from '../../wailsjs/go/api/App';
 
-// ForceQuit is a newly bound Go method. We call it via the Wails global so
-// we don't depend on the generated .d.ts (which only appears after the first
-// compile that includes the new method).
+// ForceQuit and CheckForUpdates are bound Go methods accessed via the Wails
+// global so we don't depend on the generated .d.ts (only appears after the
+// first compile that includes the new method).
+
 export function ForceQuit(): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (window as any).go.api.App.ForceQuit();
+}
+
+export interface UpdateInfo {
+  hasUpdate: boolean;
+  version: string;
+  url: string;
+}
+
+export function CheckForUpdates(): Promise<UpdateInfo> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (window as any).go.api.App.CheckForUpdates();
 }
 

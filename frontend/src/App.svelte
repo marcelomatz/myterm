@@ -16,13 +16,18 @@
   import { getSettings, saveSettings } from './domain/settings';
   import { applySettingsToAll } from './ui/settings-apply';
   import { EventsOn } from './bridge/events';
-  import { ForceQuit } from './bridge/backend';
+  import { ForceQuit, CheckForUpdates } from './bridge/backend';
+  import type { UpdateInfo } from './bridge/backend';
+  import UpdateToast from './ui/UpdateToast.svelte';
 
   const SETTINGS_TAB_ID = '__settings__';
 
   // ── Close-confirmation modal ───────────────────────────────────────────────
   /** > 0 = modal visible, value is the number of open sessions. */
   let confirmCloseCount = $state(0);
+
+  // ── Update notification ────────────────────────────────────────────────────
+  let updateInfo = $state<UpdateInfo | null>(null);
 
   // ── App state ──────────────────────────────────────────────────────────────
   let tabs        = $state<Tab[]>([]);
@@ -390,6 +395,11 @@
     // Open first tab using settings default shell (no picker)
     addTab();
 
+    // Check for updates in the background — silent on failure.
+    CheckForUpdates().then((info) => {
+      if (info?.hasUpdate) updateInfo = info;
+    }).catch(() => { /* network unavailable — ignore */ });
+
     return () => {
       window.removeEventListener('keydown', handleCtrlComma, true);
     };
@@ -429,7 +439,11 @@
 <div id="workspace" bind:this={workspaceEl}>
   <!-- Svelte-controlled overlays — never cleared by renderWorkspace() -->
   {#if showWelcome}
-    <WelcomeScreen />
+    <WelcomeScreen
+      updateVersion={updateInfo?.hasUpdate ? updateInfo.version : undefined}
+      updateUrl={updateInfo?.hasUpdate ? updateInfo.url : undefined}
+      onDismissUpdate={() => updateInfo = null}
+    />
   {:else if showSettings}
     <SettingsPanel {getLeaves} onRebuild={renderWorkspace} />
   {/if}
@@ -461,6 +475,16 @@
     </div>
   </div>
 {/if}
+
+<!-- ── Update notification toast (only while a terminal is open) ──────── -->
+{#if updateInfo?.hasUpdate && !showWelcome}
+  <UpdateToast
+    version={updateInfo.version}
+    url={updateInfo.url}
+    onDismiss={() => updateInfo = null}
+  />
+{/if}
+
 
 <style>
   .modal-backdrop {

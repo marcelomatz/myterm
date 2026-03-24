@@ -2,22 +2,83 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"myterm/core"
+	"net/http"
+	"strings"
 	"sync/atomic"
+	"time"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 const (
+	// CurrentVersion is the version of this build — compared against GitHub releases.
+	// Keep in sync with wails.json "productVersion".
+	CurrentVersion = "v0.3.0"
+
 	// maxWriteBytes caps the PTY stdin payload to prevent flooding.
+
 	maxWriteBytes = 64 * 1024 // 64 KiB
 
 	// PTY dimension limits — xterm.js clamps visually; we clamp defensively.
 	minCols, maxCols = 2, 1024
 	minRows, maxRows = 1, 512
 )
+
+// UpdateInfo is the result returned to the frontend by CheckForUpdates.
+type UpdateInfo struct {
+	HasUpdate bool   `json:"hasUpdate"`
+	Version   string `json:"version"`
+	URL       string `json:"url"`
+}
+
+// CheckForUpdates queries the GitHub releases API and compares the latest
+// release tag with CurrentVersion. Returns HasUpdate=false on any error so
+// the app starts normally even without network access.
+func (a *App) CheckForUpdates() UpdateInfo {
+	const apiURL = "https://api.github.com/repos/marcelomatz/myterm/releases/latest"
+
+	client := &http.Client{Timeout: 5 * time.Second}
+	req, err := http.NewRequest(http.MethodGet, apiURL, nil)
+	if err != nil {
+		return UpdateInfo{}
+	}
+	req.Header.Set("Accept", "application/vnd.github.v3+json")
+	req.Header.Set("User-Agent", "myterm-app/"+CurrentVersion)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("[updater] network error: %v", err)
+		return UpdateInfo{}
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("[updater] GitHub API returned %d", resp.StatusCode)
+		return UpdateInfo{}
+	}
+
+	var release struct {
+		TagName string `json:"tag_name"`
+		HTMLURL string `json:"html_url"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		log.Printf("[updater] JSON decode error: %v", err)
+		return UpdateInfo{}
+	}
+
+	latest := strings.TrimSpace(release.TagName)
+	current := strings.TrimSpace(CurrentVersion)
+
+	return UpdateInfo{
+		HasUpdate: latest != "" && latest != current,
+		Version:   latest,
+		URL:       release.HTMLURL,
+	}
+}
 
 // App is the Wails application struct — it owns the SessionManager lifecycle.
 // This is the only struct bound to Wails; it delegates all logic to core.

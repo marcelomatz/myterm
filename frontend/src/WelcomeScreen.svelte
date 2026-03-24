@@ -1,7 +1,18 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { BrowserOpenURL } from '../wailsjs/runtime/runtime';
 
-  const VERSION = "0.1.0-beta";
+  interface Props {
+    updateVersion?: string;
+    updateUrl?: string;
+    onDismissUpdate?: () => void;
+  }
+
+  let { updateVersion, updateUrl, onDismissUpdate }: Props = $props();
+
+  const VERSION = "0.3.0";
+
+
 
   const BANNER = `
   ███╗   ███╗██╗   ██╗████████╗███████╗██████╗ ███╗   ███╗
@@ -74,12 +85,23 @@
   <div class="welcome-inner">
     <div class="welcome-banner">{BANNER}</div>
     <div class="welcome-lines">{LINES}<span class="welcome-cursor"></span></div>
+    {#if updateVersion && updateUrl}
+      <div class="welcome-update" role="status">
+        <span class="update-arrow">▲</span>
+        <span class="update-label">update available</span>
+        <button class="update-link" onclick={() => BrowserOpenURL(updateUrl!)}>
+          {updateVersion}
+        </button>
+        <button class="update-dismiss" onclick={onDismissUpdate} aria-label="Fechar">✕</button>
+      </div>
+    {/if}
     <div class="welcome-cta">
       ▶ Click <strong>[+]</strong> or press <strong>Ctrl+Shift+T</strong> to open
       a terminal
     </div>
   </div>
 </div>
+
 
 <style>
   .welcome-screen {
@@ -195,6 +217,61 @@
     text-transform: uppercase;
     animation: ws-pulse 2.8s ease-in-out infinite;
   }
+
+  /* ── Update notice ─────────────────────────────────────────────── */
+  .welcome-update {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    font-size: clamp(10px, 1.15vw, 12px);
+    letter-spacing: 0.04em;
+    animation: ws-pulse 2.8s ease-in-out infinite;
+  }
+
+  .update-arrow {
+    color: #ffb300;
+    text-shadow: 0 0 6px rgba(255, 179, 0, 0.6);
+  }
+
+  .update-label {
+    color: #c8920a;
+    text-shadow: 0 0 4px rgba(200, 146, 10, 0.3);
+  }
+
+  .update-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+    color: #ffb300;
+    text-shadow: 0 0 6px rgba(255, 179, 0, 0.5);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-style: dotted;
+    transition: text-shadow 0.15s;
+  }
+
+  .update-link:hover {
+    text-shadow: 0 0 10px rgba(255, 179, 0, 0.9);
+  }
+
+  .update-dismiss {
+    background: none;
+    border: none;
+    padding: 0 2px;
+    font-family: inherit;
+    font-size: 0.72em;
+    cursor: pointer;
+    color: #7a5800;
+    transition: color 0.15s;
+    line-height: 1;
+  }
+
+  .update-dismiss:hover { color: #ffb300; }
 
   @keyframes ws-blink {
     0%,
