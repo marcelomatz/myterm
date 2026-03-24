@@ -9,8 +9,43 @@ permissions:
   contents: write
 
 jobs:
+  # ── Cria a release no GitHub (sem assets) ───────────────────────────────────
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create.outputs.upload_url }}
+    steps:
+      - name: Create GitHub Release
+        id: create
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "myTerm ${{ github.ref_name }}"
+          body: |
+            ## myTerm ${{ github.ref_name }}
+
+            ### Download
+            | Plataforma | Arquivo | Tipo |
+            |------------|---------|------|
+            | **Windows** | `myterm-amd64-installer.exe` | Instalador NSIS (recomendado) |
+            | **Windows** | `myterm-windows-amd64.exe` | Executável portátil |
+            | **macOS** | `myterm-macos-universal.dmg` | Imagem de disco (recomendado) |
+            | **macOS** | `myterm-macos-universal.zip` | App compactado |
+
+            ### Notas
+            **Windows:** O instalador é autoassinado. Se o SmartScreen aparecer, clique em _More info → Run anyway_.
+
+            **macOS:** O app não é notarizado pela Apple. Na primeira execução, vá em _System Settings → Privacy & Security → Open Anyway_.
+
+            Veja o [README](https://github.com/${{ github.repository }}) para instruções completas.
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+
+  # ── Build Windows ─────────────────────────────────────────────────────────
   build-windows:
-    name: Build & Release (Windows)
+    name: Build Windows
+    needs: create-release
     runs-on: windows-latest
 
     steps:
@@ -37,28 +72,71 @@ jobs:
       - name: Build (exe + NSIS installer)
         run: wails build --nsis --platform windows/amd64
 
-      - name: List build output
-        run: Get-ChildItem build\bin\ -Recurse
+      - name: Rename portable exe
+        run: Rename-Item build\bin\myterm.exe myterm-windows-amd64.exe
         shell: pwsh
 
-      - name: Create GitHub Release
+      - name: Upload installer
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: "myTerm ${{ github.ref_name }}"
-          body: |
-            ## myTerm ${{ github.ref_name }}
-
-            ### Download
-            - **myterm-installer.exe** — instalador Windows (recomendado)
-            - **myterm.exe** — executável portátil
-
-            ### Notas
-            > ⚠️ O instalador é autoassinado. O SmartScreen do Windows pode exibir aviso "Publisher unknown" — clique em _More info → Run anyway_.
-
-            Veja o [README](https://github.com/${{ github.repository }}) para instruções completas.
-          draft: false
-          prerelease: ${{ contains(github.ref_name, '-') }}
           files: |
-            build/bin/myterm.exe
+            build/bin/myterm-windows-amd64.exe
             build/bin/myterm-*-installer.exe
+
+  # ── Build macOS ───────────────────────────────────────────────────────────
+  build-macos:
+    name: Build macOS
+    needs: create-release
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build (universal: arm64 + amd64)
+        run: wails build --platform darwin/universal
+
+      - name: Criar DMG
+        run: |
+          brew install create-dmg
+          create-dmg \
+            --volname "myTerm" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --icon "myterm.app" 175 190 \
+            --hide-extension "myterm.app" \
+            --app-drop-link 425 190 \
+            "myterm-macos-universal.dmg" \
+            "build/bin/"
+
+      - name: Criar ZIP do .app
+        run: |
+          cd build/bin
+          zip -r myterm-macos-universal.zip myterm.app
+
+      - name: Upload assets macOS
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            myterm-macos-universal.dmg
+            build/bin/myterm-macos-universal.zip
