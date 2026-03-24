@@ -1,0 +1,72 @@
+site_name: myTerm
+site_url: https://marcelomatz.github.io/myterm/
+site_description: Terminal multiplexado de código aberto — Wails v2, Go e Svelte 5
+site_author: Marcelo Matz
+repo_name: marcelomatz/myterm
+repo_url: https://github.com/marcelomatz/myterm
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+theme:
+  name: material
+  language: pt
+  palette:
+    - scheme: slate
+      primary: cyan
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Tema claro
+    - scheme: default
+      primary: cyan
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Tema escuro
+  font:
+    text: Inter
+    code: Cascadia Code
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - content.code.annotate
+    - search.highlight
+    - search.suggest
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - Home: index.md
+  - Arquitetura: architecture.md
+  - Backend Go: backend-go.md
+  - Frontend Svelte: frontend-svelte.md
+  - Website: website.md
+
+plugins:
+  - search:
+      lang: pt
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - tables
+  - attr_list
+  - md_in_html
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/marcelomatz/myterm
