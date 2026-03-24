@@ -13,8 +13,7 @@
   "info": {
     "companyName": "MatzLabs",
     "productName": "myterm",
-    "productVersion": "0.3.3",
-
+    "productVersion": "0.3.4",
     "copyright": "© 2026 Marcelo Matzembacher",
     "comments": "A fast, modern terminal emulator — Windows, macOS & Linux"
   }
