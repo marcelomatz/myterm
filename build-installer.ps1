@@ -118,16 +118,25 @@ if (Test-Path $PfxPath) {
     WriteOk ('Usando: ' + $PfxPath)
 }
 
-# ─── 5. wails build --nsis ───────────────────────────────────────────────────
+# ─── 5. Ler versão do wails.json (fonte única de verdade) ────────────────────
+WriteStep 'Lendo versão de wails.json'
+$wailsJson  = Join-Path $Root 'wails.json'
+$versionRaw = (Get-Content $wailsJson -Raw | ConvertFrom-Json).info.productVersion
+$version    = "v$versionRaw"   # ex: "v0.4.0"
+WriteOk "Versão: $version"
+
+# ─── 6. wails build --nsis ───────────────────────────────────────────────────
 WriteStep 'wails build --nsis (windows/amd64)'
 Push-Location $Root
 try {
-    & wails build --nsis --platform windows/amd64
+    $ldflags = "-X myterm/api.CurrentVersion=$version"
+    & wails build --nsis --platform windows/amd64 -ldflags "$ldflags"
     if ($LASTEXITCODE -ne 0) { WriteFail ('wails build falhou: exit ' + $LASTEXITCODE) }
-    WriteOk 'Build concluido'
+    WriteOk "Build concluido — binario marcado como $version"
 } finally {
     Pop-Location
 }
+
 
 # ─── 6. Sign exe ─────────────────────────────────────────────────────────────
 $exe = Join-Path $BinDir 'myterm.exe'

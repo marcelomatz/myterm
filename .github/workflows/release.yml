@@ -188,13 +188,13 @@ jobs:
         run: |
           VER="${TAG#v}"
           python3 -c "
-import json, sys
-with open('wails.json', 'r') as f:
-    d = json.load(f)
-d['info']['productVersion'] = sys.argv[1]
-with open('wails.json', 'w') as f:
-    json.dump(d, f, indent=2)
-" "$VER"
+          import json, sys
+          with open('wails.json', 'r') as f:
+              d = json.load(f)
+          d['info']['productVersion'] = sys.argv[1]
+          with open('wails.json', 'w') as f:
+              json.dump(d, f, indent=2)
+          " "$VER"
           echo "productVersion set to $VER"
 
       - name: Build macOS universal
@@ -267,13 +267,13 @@ with open('wails.json', 'w') as f:
         run: |
           VER="${TAG#v}"
           python3 -c "
-import json, sys
-with open('wails.json', 'r') as f:
-    d = json.load(f)
-d['info']['productVersion'] = sys.argv[1]
-with open('wails.json', 'w') as f:
-    json.dump(d, f, indent=2)
-" "$VER"
+          import json, sys
+          with open('wails.json', 'r') as f:
+              d = json.load(f)
+          d['info']['productVersion'] = sys.argv[1]
+          with open('wails.json', 'w') as f:
+              json.dump(d, f, indent=2)
+          " "$VER"
           echo "productVersion set to $VER"
 
       - name: Build Linux
