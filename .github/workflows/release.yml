@@ -43,7 +43,7 @@ jobs:
           draft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
 
-  # ── Build multi-plataforma com wails-build-action ───────────────────────────
+  # ── Build multi-plataforma com wails-build-action@v2.2 ──────────────────────
   build:
     name: Build ${{ matrix.build.os-name }}
     needs: create-release
@@ -60,14 +60,14 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: dAppServer/wails-build-action@v3
+      - uses: dAppServer/wails-build-action@v2.2
         with:
           build-name: myterm
           build-platform: ${{ matrix.build.platform }}
           go-version: '1.22'
           node-version: '20.x'
           nsis: true
-          package: false   # vamos fazer upload manual para renomear arquivos
+          package: false   # upload manual abaixo para controlar nomes
 
       # ── Windows: renomear e fazer upload ──────────────────────────────────
       - name: Upload Windows assets
@@ -79,11 +79,12 @@ jobs:
           $tag = "${{ github.ref_name }}"
           Copy-Item build\bin\myterm.exe build\bin\myterm-windows-amd64.exe
           $installer = Get-ChildItem build\bin\*installer*.exe | Select-Object -First 1
-          Copy-Item $installer.FullName build\bin\myterm-windows-amd64-installer.exe
-          gh release upload $tag `
-            build\bin\myterm-windows-amd64.exe `
-            build\bin\myterm-windows-amd64-installer.exe `
-            --clobber
+          if ($installer) {
+            Copy-Item $installer.FullName build\bin\myterm-windows-amd64-installer.exe
+            gh release upload $tag build\bin\myterm-windows-amd64.exe build\bin\myterm-windows-amd64-installer.exe --clobber
+          } else {
+            gh release upload $tag build\bin\myterm-windows-amd64.exe --clobber
+          }
 
       # ── macOS: criar DMG + ZIP e fazer upload ─────────────────────────────
       - name: Package and upload macOS assets
@@ -102,9 +103,7 @@ jobs:
             --app-drop-link 425 190 \
             "myterm-macos-universal.dmg" \
             "build/bin/"
-          cd build/bin
-          zip -r ../../myterm-macos-universal.zip myterm.app
-          cd ../..
+          cd build/bin && zip -r ../../myterm-macos-universal.zip myterm.app && cd ../..
           gh release upload "${{ github.ref_name }}" \
             myterm-macos-universal.dmg \
             myterm-macos-universal.zip \
@@ -116,9 +115,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd build/bin
-          tar -czf ../../myterm-linux-amd64.tar.gz myterm
-          cd ../..
+          cd build/bin && tar -czf ../../myterm-linux-amd64.tar.gz myterm && cd ../..
           gh release upload "${{ github.ref_name }}" \
             myterm-linux-amd64.tar.gz \
             --clobber
