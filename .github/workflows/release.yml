@@ -75,19 +75,35 @@ jobs:
       - name: Preparar assets Windows
         shell: pwsh
         run: |
-          # Mostrar estrutura gerada para diagnóstico
-          Write-Host '=== build/bin ===' ; Get-ChildItem build\bin -ErrorAction SilentlyContinue
-          Write-Host '=== build/windows ===' ; Get-ChildItem build\windows -Recurse -ErrorAction SilentlyContinue
+          # Mostrar toda a estrutura build/ para diagnóstico
+          Write-Host '=== build/ (recursivo) ===' 
+          Get-ChildItem build -Recurse -ErrorAction SilentlyContinue | Select-Object FullName, Length | Format-Table
 
           # Portátil: build/bin/myterm.exe
-          Copy-Item build\bin\myterm.exe myterm-windows-amd64.exe
+          Copy-Item build\bin\myterm.exe myterm-windows-amd64.exe -ErrorAction Stop
+          Write-Host "Portátil copiado OK: $(Get-Item myterm-windows-amd64.exe | Select-Object -ExpandProperty Length) bytes"
 
-          # Instalador NSIS: pode estar em build/bin/ ou build/windows/installer/
-          $installer = Get-ChildItem build\bin\*installer*.exe, build\windows\installer\*.exe 2>$null | Select-Object -First 1
+          # Instalador NSIS: varredura completa da árvore build/
+          $installer = Get-ChildItem build -Recurse -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -match 'installer|Setup' -and $_.Extension -eq '.exe' } |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+
           if ($installer) {
-            Copy-Item $installer.FullName myterm-windows-amd64-installer.exe
+            Copy-Item $installer.FullName myterm-windows-amd64-installer.exe -ErrorAction Stop
+            Write-Host "Instalador copiado de: $($installer.FullName)"
           } else {
-            Write-Warning 'Instalador NSIS nao encontrado — enviando apenas o .exe portatil'
+            # Último recurso: qualquer .exe no build/ além do portátil
+            $any = Get-ChildItem build -Recurse -Filter '*.exe' -ErrorAction SilentlyContinue |
+              Where-Object { $_.Name -ne 'myterm.exe' } |
+              Sort-Object LastWriteTime -Descending |
+              Select-Object -First 1
+            if ($any) {
+              Copy-Item $any.FullName myterm-windows-amd64-installer.exe -ErrorAction Stop
+              Write-Host "Instalador (fallback) copiado de: $($any.FullName)"
+            } else {
+              Write-Warning 'Instalador NSIS não encontrado — enviando apenas o .exe portátil'
+            }
           }
 
       - name: Upload Windows assets
@@ -98,9 +114,14 @@ jobs:
           $files = @('myterm-windows-amd64.exe')
           if (Test-Path 'myterm-windows-amd64-installer.exe') {
             $files += 'myterm-windows-amd64-installer.exe'
+            Write-Host "Enviando portátil + instalador"
+          } else {
+            Write-Host "Enviando apenas portátil (instalador não encontrado)"
           }
-          $fileList = $files -join ' '
-          Invoke-Expression "gh release upload '${{ github.ref_name }}' $fileList --clobber"
+          foreach ($f in $files) {
+            gh release upload '${{ github.ref_name }}' $f --clobber
+          }
+
 
   # ── Build macOS ───────────────────────────────────────────────────────────
   build-macos:
