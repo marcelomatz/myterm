@@ -72,23 +72,35 @@ jobs:
       - name: Build Windows (com instalador NSIS)
         run: wails build --nsis --platform windows/amd64
 
-      - name: Renomear portátil
-        shell: pwsh
-        run: Rename-Item build\bin\myterm.exe myterm-windows-amd64.exe
-
-      - name: Renomear instalador
+      - name: Preparar assets Windows
         shell: pwsh
         run: |
-          $old = Get-ChildItem build\bin\*installer*.exe | Select-Object -First 1
-          Rename-Item $old.FullName myterm-windows-amd64-installer.exe
+          # Mostrar estrutura gerada para diagnóstico
+          Write-Host '=== build/bin ===' ; Get-ChildItem build\bin -ErrorAction SilentlyContinue
+          Write-Host '=== build/windows ===' ; Get-ChildItem build\windows -Recurse -ErrorAction SilentlyContinue
+
+          # Portátil: build/bin/myterm.exe
+          Copy-Item build\bin\myterm.exe myterm-windows-amd64.exe
+
+          # Instalador NSIS: pode estar em build/bin/ ou build/windows/installer/
+          $installer = Get-ChildItem build\bin\*installer*.exe, build\windows\installer\*.exe 2>$null | Select-Object -First 1
+          if ($installer) {
+            Copy-Item $installer.FullName myterm-windows-amd64-installer.exe
+          } else {
+            Write-Warning 'Instalador NSIS nao encontrado — enviando apenas o .exe portatil'
+          }
 
       - name: Upload Windows assets
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          files: |
-            build/bin/myterm-windows-amd64.exe
-            build/bin/myterm-windows-amd64-installer.exe
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $files = @('myterm-windows-amd64.exe')
+          if (Test-Path 'myterm-windows-amd64-installer.exe') {
+            $files += 'myterm-windows-amd64-installer.exe'
+          }
+          $fileList = $files -join ' '
+          Invoke-Expression "gh release upload '${{ github.ref_name }}' $fileList --clobber"
 
   # ── Build macOS ───────────────────────────────────────────────────────────
   build-macos:
