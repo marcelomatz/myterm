@@ -17,7 +17,8 @@ import (
 const (
 	// CurrentVersion is the version of this build — compared against GitHub releases.
 	// Keep in sync with wails.json "productVersion".
-	CurrentVersion = "v0.3.0"
+	CurrentVersion = "v0.3.1"
+
 
 	// maxWriteBytes caps the PTY stdin payload to prevent flooding.
 

@@ -83,9 +83,15 @@ jobs:
           Copy-Item build\bin\myterm.exe myterm-windows-amd64.exe -ErrorAction Stop
           Write-Host "Portátil copiado OK: $(Get-Item myterm-windows-amd64.exe | Select-Object -ExpandProperty Length) bytes"
 
-          # Instalador NSIS: varredura completa da árvore build/
+          # Instalador NSIS: busca por arquivos com 'myterm' no nome (excluindo WebView2/Edge)
+          # O Wails pode gerar: build/bin/myterm-amd64-installer.exe ou build/bin/myterm.exe (NSIS cria arquivo separado)
           $installer = Get-ChildItem build -Recurse -ErrorAction SilentlyContinue |
-            Where-Object { $_.Name -match 'installer|Setup' -and $_.Extension -eq '.exe' } |
+            Where-Object {
+              $_.Extension -eq '.exe' -and
+              $_.Name -imatch 'myterm' -and
+              $_.Name -imatch 'installer' -and
+              $_.Name -inotmatch 'webview|edge|microsoft'
+            } |
             Sort-Object LastWriteTime -Descending |
             Select-Object -First 1
 
@@ -93,18 +99,12 @@ jobs:
             Copy-Item $installer.FullName myterm-windows-amd64-installer.exe -ErrorAction Stop
             Write-Host "Instalador copiado de: $($installer.FullName)"
           } else {
-            # Último recurso: qualquer .exe no build/ além do portátil
-            $any = Get-ChildItem build -Recurse -Filter '*.exe' -ErrorAction SilentlyContinue |
-              Where-Object { $_.Name -ne 'myterm.exe' } |
-              Sort-Object LastWriteTime -Descending |
-              Select-Object -First 1
-            if ($any) {
-              Copy-Item $any.FullName myterm-windows-amd64-installer.exe -ErrorAction Stop
-              Write-Host "Instalador (fallback) copiado de: $($any.FullName)"
-            } else {
-              Write-Warning 'Instalador NSIS não encontrado — enviando apenas o .exe portátil'
-            }
+            Write-Warning "Instalador NSIS nao encontrado — apenas o exe portatil sera enviado"
+            Write-Host "EXEs encontrados em build/:"
+            Get-ChildItem build -Recurse -Filter '*.exe' -ErrorAction SilentlyContinue |
+              Select-Object FullName, Length | Format-Table
           }
+
 
       - name: Upload Windows assets
         shell: pwsh

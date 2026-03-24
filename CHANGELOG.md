@@ -7,7 +7,15 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ---
 
+## [0.3.1] — 2026-03-24
+
+### 🔧 Corrigido
+- **CI — Detecção do instalador NSIS**: a varredura recursiva de `build/` capturava o `MicrosoftEdgeWebview2Setup.exe` (baixado pelo Wails durante o build) no lugar do instalador real do myTerm. A busca agora exige `myterm` E `installer` no nome do arquivo e exclui explicitamente qualquer arquivo com `webview`, `edge` ou `microsoft` no nome.
+
+---
+
 ## [0.3.0] — 2026-03-23
+
 
 ### 🚀 Adicionado
 - **Verificador de atualizações automático**: ao iniciar, o app consulta a API do GitHub e notifica quando há uma release mais nova
@@ -53,6 +61,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Tema escuro com accent amarelo (#ffd700)
 - Build para **Windows** (`.exe` portátil)
 
+[0.3.1]: https://github.com/marcelomatz/myterm/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/marcelomatz/myterm/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/marcelomatz/myterm/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/marcelomatz/myterm/releases/tag/v0.1.0
