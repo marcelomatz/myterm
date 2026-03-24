@@ -9,10 +9,12 @@ on:
   workflow_dispatch:  # permite disparar manualmente
 
 permissions:
-  contents: write   # necessário para gh-deploy escrever na branch gh-pages
+  contents: read   # necessário para checkout
+  pages: write     # necessário para gh-pages
+  id-token: write  # necessário para autenticação com OIDC
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +38,22 @@ jobs:
             mkdocs-material==9.* \
             pymdown-extensions
 
-      - name: Deploy para GitHub Pages
-        run: mkdocs gh-deploy --force --clean --verbose
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build MkDocs site
+        run: mkdocs build --clean --verbose
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site # O diretório onde o MkDocs constrói o site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
