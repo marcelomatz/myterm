@@ -1,0 +1,1476 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação do frontend Svelte 5: arquitetura de componentes, pane tree, session lifecycle, settings e GPU renderer.">
+      
+      
+        <meta name="author" content="Marcelo Matz">
+      
+      
+        <link rel="canonical" href="https://marcelomatz.github.io/myterm/frontend-svelte/">
+      
+      
+        <link rel="prev" href="../backend-go/">
+      
+      
+        <link rel="next" href="../website/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Frontend Svelte — myTerm - myTerm</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CCascadia+Code:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"Cascadia Code"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#frontend-svelte" class="md-skip">
+          Ir para o conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href=".." title="myTerm" class="md-header__button md-logo" aria-label="myTerm" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            myTerm
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Frontend Svelte — myTerm
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="cyan"  aria-label="Tema claro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Tema claro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent="cyan"  aria-label="Tema escuro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Tema escuro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando a pesquisa
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/marcelomatz/myterm" title="Ir ao repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marcelomatz/myterm
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Abas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../architecture/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Arquitetura
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../backend-go/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Backend Go
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Frontend Svelte
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../website/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Website
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="myTerm" class="md-nav__button md-logo" aria-label="myTerm" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    myTerm
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/marcelomatz/myterm" title="Ir ao repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marcelomatz/myterm
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend-go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend Svelte
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend Svelte
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#estrutura-de-arquivos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estrutura de arquivos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bridgebackendts-ponto-de-contato-com-o-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bridge/backend.ts — Ponto de Contato com o Go
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#domaintypests-arvore-de-paineis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        domain/types.ts — Árvore de Painéis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#domainsettingsts-configuracoes-e-temas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        domain/settings.ts — Configurações e Temas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="domain/settings.ts — Configurações e Temas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#5-presets-de-cor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5 Presets de Cor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#appsettings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AppSettings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uisessionts-lifecycle-de-sessao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ui/session.ts — Lifecycle de Sessão
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ui/session.ts — Lifecycle de Sessão">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#createsession" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        createSession
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attachgpurenderer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        attachGpuRenderer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#destroysession" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        destroySession
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uipanets-arvore-de-paineis-e-dom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ui/pane.ts — Árvore de Painéis e DOM
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ui/pane.ts — Árvore de Painéis e DOM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#map-nao-reativo-de-elementos-dom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Map não-reativo de elementos DOM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#renderpane" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        renderPane
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#splitleaf-e-removeleaf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        splitLeaf e removeLeaf
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wireleaf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wireLeaf
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#atalhos-de-teclado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atalhos de Teclado
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#settings-panel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings Panel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#welcomescreen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WelcomeScreen
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../website/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#estrutura-de-arquivos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estrutura de arquivos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bridgebackendts-ponto-de-contato-com-o-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bridge/backend.ts — Ponto de Contato com o Go
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#domaintypests-arvore-de-paineis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        domain/types.ts — Árvore de Painéis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#domainsettingsts-configuracoes-e-temas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        domain/settings.ts — Configurações e Temas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="domain/settings.ts — Configurações e Temas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#5-presets-de-cor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5 Presets de Cor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#appsettings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AppSettings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uisessionts-lifecycle-de-sessao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ui/session.ts — Lifecycle de Sessão
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ui/session.ts — Lifecycle de Sessão">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#createsession" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        createSession
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attachgpurenderer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        attachGpuRenderer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#destroysession" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        destroySession
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uipanets-arvore-de-paineis-e-dom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ui/pane.ts — Árvore de Painéis e DOM
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ui/pane.ts — Árvore de Painéis e DOM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#map-nao-reativo-de-elementos-dom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Map não-reativo de elementos DOM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#renderpane" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        renderPane
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#splitleaf-e-removeleaf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        splitLeaf e removeLeaf
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wireleaf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wireLeaf
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#atalhos-de-teclado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atalhos de Teclado
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#settings-panel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings Panel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#welcomescreen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WelcomeScreen
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="frontend-svelte">Frontend Svelte</h1>
+<p>O frontend do myTerm é uma <strong>SPA Svelte 5</strong> empacotada pelo Vite. Ele roda dentro do WebView do sistema operacional, se comunica com o backend Go via Wails IPC, e renderiza terminais usando <strong>xterm.js</strong> com renderer de GPU.</p>
+<h2 id="estrutura-de-arquivos">Estrutura de arquivos</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>frontend/src/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── App.svelte                # Raiz da aplicação — state global, atalhos, event routing
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── TabBar.svelte             # Barra de abas + botão nova aba
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── TitleBar.svelte           # Barra de título frameless (drag, botões de janela)
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>├── WelcomeScreen.svelte      # Tela inicial (seleção de shell)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>├── SettingsPanel.svelte      # Painel de configurações
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>├── bridge/
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── backend.ts            # Re-exporta bindings Wails Go
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   └── events.ts             # Wrappers de EventsOn / EventsOff
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>├── domain/
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   ├── types.ts              # PaneLeaf, PaneSplit, Tab, AppState
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│   ├── settings.ts           # AppSettings, COLOR_PRESETS, load/save
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│   ├── shell-meta.ts         # Metadados de exibição dos shells
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   └── font-loader.ts        # Pré-carrega web fonts antes de term.open()
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>└── ui/
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    ├── session.ts            # createSession, destroySession, attachGpuRenderer
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    ├── pane.ts               # renderPane, splitLeaf, removeLeaf, wireLeaf
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    ├── settings-apply.ts     # Aplica settings a todas as sessões abertas
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    ├── shell-picker.ts       # Lógica do shell picker na tela de boas-vindas
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    ├── welcome-screen.ts     # Lógica da tela de boas-vindas
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    └── UpdateToast.svelte    # Toast de atualização disponível
+</code></pre></div>
+<hr />
+<h2 id="bridgebackendts-ponto-de-contato-com-o-go"><code>bridge/backend.ts</code> — Ponto de Contato com o Go</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// bridge/backend.ts — re-exporta os bindings gerados pelo Wails</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">DetectShells</span><span class="p">,</span><span class="w"> </span><span class="nx">NewSession</span><span class="p">,</span><span class="w"> </span><span class="nx">CloseSession</span><span class="p">,</span><span class="w"> </span><span class="nx">Write</span><span class="p">,</span><span class="w"> </span><span class="nx">Resize</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../../wailsjs/go/api/App&#39;</span><span class="p">;</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">ForceQuit</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="nb">window</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">any</span><span class="p">).</span><span class="nx">go</span><span class="p">.</span><span class="nx">api</span><span class="p">.</span><span class="nx">App</span><span class="p">.</span><span class="nx">ForceQuit</span><span class="p">();</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">CheckForUpdates</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">UpdateInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="nb">window</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">any</span><span class="p">).</span><span class="nx">go</span><span class="p">.</span><span class="nx">api</span><span class="p">.</span><span class="nx">App</span><span class="p">.</span><span class="nx">CheckForUpdates</span><span class="p">();</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>ForceQuit</code> e <code>CheckForUpdates</code> usam <code>window.go.api.App.*</code> diretamente porque não aparecem nos <code>.d.ts</code> gerados até o primeiro build (problema de bootstrapping do <code>wailsjs</code>).</p>
+<p>Todos os outros módulos importam de <code>bridge/backend.ts</code> — nunca dos paths <code>wailsjs/go/…</code> diretamente. Isso centraliza a abstração e facilita mocks em testes.</p>
+<hr />
+<h2 id="domaintypests-arvore-de-paineis"><code>domain/types.ts</code> — Árvore de Painéis</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// domain/types.ts</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">PaneLeaf</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nx">kind</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;leaf&#39;</span><span class="p">;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nx">sessionId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nx">shell</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nx">term</span><span class="o">:</span><span class="w"> </span><span class="kt">Terminal</span><span class="p">;</span><span class="w">      </span><span class="c1">// instância xterm.js</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="nx">fit</span><span class="o">:</span><span class="w"> </span><span class="kt">FitAddon</span><span class="p">;</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="nx">renderer</span><span class="o">:</span><span class="w"> </span><span class="kt">WebglAddon</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">CanvasAddon</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">}</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">PaneSplit</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="nx">kind</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;split&#39;</span><span class="p">;</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">  </span><span class="nx">dir</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;h&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;v&#39;</span><span class="p">;</span><span class="w">     </span><span class="c1">// &#39;h&#39; = lado a lado, &#39;v&#39; = cima/baixo</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="nx">ratio</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">       </span><span class="c1">// 0.0–1.0, fração para filho `a`</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span><span class="nx">a</span><span class="o">:</span><span class="w"> </span><span class="kt">PaneNode</span><span class="p">;</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">  </span><span class="nx">b</span><span class="o">:</span><span class="w"> </span><span class="kt">PaneNode</span><span class="p">;</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="p">}</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">PaneNode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">PaneLeaf</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">PaneSplit</span><span class="p">;</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">Tab</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">  </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">  </span><span class="nx">root</span><span class="o">:</span><span class="w"> </span><span class="kt">PaneNode</span><span class="p">;</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="w">  </span><span class="nx">activeLeafId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Nota importante</strong>: o elemento DOM do leaf (<code>&lt;div class="pane"&gt;</code>) não está em <code>PaneLeaf</code> — ele vive em <code>ui/pane.ts:leafElMap</code>. Isso é proposital: DOM refs dentro do <code>$state</code> do Svelte causam loops infinitos de <code>$effect</code> (<code>effect_update_depth_exceeded</code>).</p>
+<hr />
+<h2 id="domainsettingsts-configuracoes-e-temas"><code>domain/settings.ts</code> — Configurações e Temas</h2>
+<h3 id="5-presets-de-cor">5 Presets de Cor</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Nome</th>
+<th>Background</th>
+<th>Cursor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cyber-noir</code></td>
+<td>Cyber Noir</td>
+<td><code>#09090b</code></td>
+<td><code>#22d3ee</code> (cyan)</td>
+</tr>
+<tr>
+<td><code>pampulha-night</code></td>
+<td>Pampulha Night</td>
+<td><code>#0f172a</code></td>
+<td><code>#fbbf24</code> (amber)</td>
+</tr>
+<tr>
+<td><code>espresso-code</code></td>
+<td>Espresso Code</td>
+<td><code>#1c1917</code></td>
+<td><code>#d97706</code> (amber)</td>
+</tr>
+<tr>
+<td><code>gophers-forge</code></td>
+<td>Gopher's Forge</td>
+<td><code>#121212</code></td>
+<td><code>#00add8</code> (Go blue)</td>
+</tr>
+<tr>
+<td><code>sysadmin-phosphor</code></td>
+<td>Phosphor</td>
+<td><code>#020b05</code></td>
+<td><code>#22c55e</code> (green)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="appsettings"><code>AppSettings</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">AppSettings</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nx">fontFamily</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">          </span><span class="c1">// padrão: &#39;&quot;Cascadia Code&quot;, monospace&#39;</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nx">fontSize</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">            </span><span class="c1">// 8–28, padrão: 14</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nx">lineHeight</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">          </span><span class="c1">// 1.0–2.0, padrão: 1.2</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nx">cursorBlink</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w">        </span><span class="c1">// padrão: true</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="nx">cursorStyle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;block&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;bar&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;underline&#39;</span><span class="p">;</span><span class="w"> </span><span class="c1">// padrão: &#39;block&#39;</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="nx">colorPresetId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">       </span><span class="c1">// padrão: &#39;cyber-noir&#39;</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="nx">scrollback</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">          </span><span class="c1">// 500–10000, padrão: 1000</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="nx">defaultShell</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">        </span><span class="c1">// &#39;&#39; = auto-detect</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="nx">copyOnSelect</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span><span class="w">       </span><span class="c1">// padrão: false</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="p">}</span>
+</code></pre></div>
+<p>Settings são persistidas em <code>localStorage</code> com a chave <code>myterm.settings</code>. Um singleton em memória (<code>_settings</code>) evita múltiplas leituras do storage:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// domain/settings.ts:128-133</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kd">let</span><span class="w"> </span><span class="nx">_settings</span><span class="o">:</span><span class="w"> </span><span class="kt">AppSettings</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">getSettings</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nx">AppSettings</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">_settings</span><span class="p">)</span><span class="w"> </span><span class="nx">_settings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">loadSettings</span><span class="p">();</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">_settings</span><span class="p">;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>loadSettings</code> faz spread de <code>DEFAULT_SETTINGS</code> com os dados do storage — garante que novos campos com defaults apareçam mesmo em settings salvas anteriormente.</p>
+<hr />
+<h2 id="uisessionts-lifecycle-de-sessao"><code>ui/session.ts</code> — Lifecycle de Sessão</h2>
+<h3 id="createsession"><code>createSession</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// ui/session.ts:75-163</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">createSession</span><span class="p">(</span><span class="nx">shell</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">PaneLeaf</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getSettings</span><span class="p">();</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">sessionId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">NewSession</span><span class="p">(</span><span class="nx">shell</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">defaultShell</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">term</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Terminal</span><span class="p">({</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nx">fontFamily</span><span class="o">:</span><span class="w"> </span><span class="kt">s.fontFamily</span><span class="p">,</span><span class="w"> </span><span class="nx">fontSize</span><span class="o">:</span><span class="w"> </span><span class="kt">s.fontSize</span><span class="p">,</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="nx">lineHeight</span><span class="o">:</span><span class="w"> </span><span class="kt">s.lineHeight</span><span class="p">,</span><span class="w"> </span><span class="nx">cursorBlink</span><span class="o">:</span><span class="w"> </span><span class="kt">s.cursorBlink</span><span class="p">,</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="nx">cursorStyle</span><span class="o">:</span><span class="w"> </span><span class="kt">s.cursorStyle</span><span class="p">,</span><span class="w"> </span><span class="nx">scrollback</span><span class="o">:</span><span class="w"> </span><span class="kt">s.scrollback</span><span class="p">,</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="nx">allowProposedApi</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="nx">theme</span><span class="o">:</span><span class="w"> </span><span class="kt">getPreset</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">colorPresetId</span><span class="p">).</span><span class="nx">theme</span><span class="p">,</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="p">});</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">fit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">FitAddon</span><span class="p">();</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">  </span><span class="nx">term</span><span class="p">.</span><span class="nx">loadAddon</span><span class="p">(</span><span class="nx">fit</span><span class="p">);</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">ensureFont</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">fontFamily</span><span class="p">);</span><span class="w">       </span><span class="c1">// pré-carrega a web font</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">  </span><span class="c1">// Manejador de teclado customizado para atalhos  </span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">  </span><span class="nx">term</span><span class="p">.</span><span class="nx">attachCustomKeyEventHandler</span><span class="p">((</span><span class="nx">ev</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">ev</span><span class="p">.</span><span class="nx">ctrlKey</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">ev</span><span class="p">.</span><span class="nx">shiftKey</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">ev</span><span class="p">.</span><span class="nx">key</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;v&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">ev</span><span class="p">.</span><span class="nx">repeat</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="w">      </span><span class="nx">navigator</span><span class="p">.</span><span class="nx">clipboard</span><span class="p">.</span><span class="nx">readText</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">text</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">term</span><span class="p">.</span><span class="nx">paste</span><span class="p">(</span><span class="nx">text</span><span class="p">));</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span><span class="w">                    </span><span class="c1">// previne \x16 sendo enviado ao PTY</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="w">    </span><span class="c1">// Ctrl+Shift+W/D/E/T/Tab → re-dispara em document para App.svelte</span>
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">isOurShortcut</span><span class="p">(</span><span class="nx">ev</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">dispatchEvent</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">KeyboardEvent</span><span class="p">(</span><span class="s1">&#39;keydown&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">ev</span><span class="w"> </span><span class="p">}));</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a><span class="w">  </span><span class="p">});</span>
+<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a>
+<a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a><span class="w">  </span><span class="nx">EventsOn</span><span class="p">(</span><span class="s1">&#39;terminal-output:&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">sessionId</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">term</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">data</span><span class="p">));</span>
+<a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a>
+<a id="__codelineno-5-34" name="__codelineno-5-34" href="#__codelineno-5-34"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">copyOnSelect</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-35" name="__codelineno-5-35" href="#__codelineno-5-35"></a><span class="w">    </span><span class="nx">term</span><span class="p">.</span><span class="nx">onSelectionChange</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-36" name="__codelineno-5-36" href="#__codelineno-5-36"></a><span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">sel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">term</span><span class="p">.</span><span class="nx">getSelection</span><span class="p">();</span>
+<a id="__codelineno-5-37" name="__codelineno-5-37" href="#__codelineno-5-37"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">sel</span><span class="p">)</span><span class="w"> </span><span class="nx">navigator</span><span class="p">.</span><span class="nx">clipboard</span><span class="p">.</span><span class="nx">writeText</span><span class="p">(</span><span class="nx">sel</span><span class="p">).</span><span class="k">catch</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{});</span>
+<a id="__codelineno-5-38" name="__codelineno-5-38" href="#__codelineno-5-38"></a><span class="w">    </span><span class="p">});</span>
+<a id="__codelineno-5-39" name="__codelineno-5-39" href="#__codelineno-5-39"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-5-40" name="__codelineno-5-40" href="#__codelineno-5-40"></a>
+<a id="__codelineno-5-41" name="__codelineno-5-41" href="#__codelineno-5-41"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">kind</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;leaf&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">sessionId</span><span class="p">,</span><span class="w"> </span><span class="nx">shell</span><span class="o">:</span><span class="w"> </span><span class="kt">shell</span><span class="p">,</span><span class="w"> </span><span class="nx">term</span><span class="p">,</span><span class="w"> </span><span class="nx">fit</span><span class="p">,</span><span class="w"> </span><span class="nx">renderer</span><span class="o">:</span><span class="w"> </span><span class="kt">null</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-5-42" name="__codelineno-5-42" href="#__codelineno-5-42"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>term.open()</code> <strong>não</strong> é chamado aqui. Ele acontece de forma lazy em <code>renderPane()</code> quando o leaf é colocado em um container DOM vivo. Isso evita falha ao adquirir contexto WebGL em elemento detached.</p>
+<h3 id="attachgpurenderer"><code>attachGpuRenderer</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">// ui/session.ts:27-60</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">attachGpuRenderer</span><span class="p">(</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nx">term</span><span class="o">:</span><span class="w"> </span><span class="kt">Terminal</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nx">onRendererChange</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="o">:</span><span class="w"> </span><span class="kt">WebglAddon</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">CanvasAddon</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">void</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">webgl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebglAddon</span><span class="p">();</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nx">webgl</span><span class="p">.</span><span class="nx">onContextLoss</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">      </span><span class="c1">// NÃO chamar webgl.dispose() aqui — xterm já limpa internamente</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">      </span><span class="nx">attachCanvas</span><span class="p">();</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="p">});</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="nx">term</span><span class="p">.</span><span class="nx">loadAddon</span><span class="p">(</span><span class="nx">webgl</span><span class="p">);</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="nx">onRendererChange</span><span class="p">(</span><span class="nx">webgl</span><span class="p">);</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">attachCanvas</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="p">}</span>
+</code></pre></div>
+<p>A cascata <strong>WebGL → Canvas → DOM</strong> é totalmente automática. O callback <code>onRendererChange</code> mantém <code>leaf.renderer</code> atualizado — importante porque <code>destroySession</code> precisa dispor o renderer correto.</p>
+<p>Browsers limitam ~16 contextos WebGL ativos. A recuperação de context loss sem chamar <code>dispose()</code> manualmente evita o crash <code>"Cannot read properties of undefined (reading '_isDisposed')"</code>.</p>
+<h3 id="destroysession"><code>destroySession</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// ui/session.ts:173-180</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">destroySession</span><span class="p">(</span><span class="nx">leaf</span><span class="o">:</span><span class="w"> </span><span class="kt">PaneLeaf</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="ow">void</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nx">EventsOff</span><span class="p">(</span><span class="s1">&#39;terminal-output:&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">leaf</span><span class="p">.</span><span class="nx">sessionId</span><span class="p">);</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nx">EventsOff</span><span class="p">(</span><span class="s1">&#39;terminal-exit:&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">leaf</span><span class="p">.</span><span class="nx">sessionId</span><span class="p">);</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">CloseSession</span><span class="p">(</span><span class="nx">leaf</span><span class="p">.</span><span class="nx">sessionId</span><span class="p">);</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* already closed */</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">leaf</span><span class="p">.</span><span class="nx">renderer</span><span class="o">?</span><span class="p">.</span><span class="nx">dispose</span><span class="p">();</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ignore */</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="nx">leaf</span><span class="p">.</span><span class="nx">term</span><span class="p">.</span><span class="nx">dispose</span><span class="p">();</span><span class="w">  </span><span class="c1">// renderer deve ser disposed ANTES do term</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="p">}</span>
+</code></pre></div>
+<p>A ordem <code>renderer.dispose()</code> antes de <code>term.dispose()</code> é obrigatória para evitar bug interno do xterm.</p>
+<hr />
+<h2 id="uipanets-arvore-de-paineis-e-dom"><code>ui/pane.ts</code> — Árvore de Painéis e DOM</h2>
+<h3 id="map-nao-reativo-de-elementos-dom">Map não-reativo de elementos DOM</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// ui/pane.ts:17</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">leafElMap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">HTMLElement</span><span class="o">&gt;</span><span class="p">();</span>
+</code></pre></div>
+<p>Cada sessão tem <strong>um único <code>&lt;div class="pane"&gt;</code> persistente</strong>. <code>renderPane</code> apenas move esse div — nunca faz <code>innerHTML = ''</code> no container do terminal. Isso previne que a destruição de um painel apague acidentalmente o <code>.xterm</code> de outro.</p>
+<h3 id="renderpane"><code>renderPane</code></h3>
+<p>Para um <code>PaneLeaf</code>:
+- Se o terminal já foi aberto (→ <code>.xterm</code> existe no DOM), apenas re-faz <code>fit()</code> e <code>focus()</code>
+- Se é a primeira renderização, chama <code>term.open(leafEl)</code> + <code>attachGpuRenderer</code></p>
+<p>Para um <code>PaneSplit</code>:
+- Cria dois <code>&lt;div&gt;</code> de célula + um <code>&lt;div class="divider"&gt;</code>
+- Usa <code>CSS Grid</code> com <code>gridTemplateColumns/Rows</code> para aplicar o <code>ratio</code>
+- Gera listener de drag no divider para redimensionamento</p>
+<h3 id="splitleaf-e-removeleaf"><code>splitLeaf</code> e <code>removeLeaf</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// ui/pane.ts:204-248 (resumido)</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">splitLeaf</span><span class="p">(</span><span class="nx">root</span><span class="p">,</span><span class="w"> </span><span class="nx">activeSessionId</span><span class="p">,</span><span class="w"> </span><span class="nx">dir</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">newLeaf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">createSession</span><span class="p">();</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="c1">// replaceLeaf é puro — retorna nova árvore sem mutar a existente</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">newRoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">replaceLeaf</span><span class="p">(</span><span class="nx">root</span><span class="p">,</span><span class="w"> </span><span class="nx">activeSessionId</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="nx">kind</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;split&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dir</span><span class="p">,</span><span class="w"> </span><span class="nx">ratio</span><span class="o">:</span><span class="w"> </span><span class="kt">0.5</span><span class="p">,</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="nx">a</span><span class="o">:</span><span class="w"> </span><span class="kt">findLeaf</span><span class="p">(</span><span class="nx">root</span><span class="p">,</span><span class="w"> </span><span class="nx">activeSessionId</span><span class="p">)</span><span class="o">!</span><span class="p">,</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="nx">b</span><span class="o">:</span><span class="w"> </span><span class="kt">newLeaf</span><span class="p">,</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span><span class="p">});</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">newRoot</span><span class="p">,</span><span class="w"> </span><span class="nx">newLeaf</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="p">}</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">removeLeaf</span><span class="p">(</span><span class="nx">root</span><span class="p">,</span><span class="w"> </span><span class="nx">removeId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">leaf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">findLeaf</span><span class="p">(</span><span class="nx">root</span><span class="p">,</span><span class="w"> </span><span class="nx">removeId</span><span class="p">);</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">leaf</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">destroySession</span><span class="p">(</span><span class="nx">leaf</span><span class="p">);</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">    </span><span class="nx">deleteLeafEl</span><span class="p">(</span><span class="nx">removeId</span><span class="p">);</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">pruneLeaf</span><span class="p">(</span><span class="nx">root</span><span class="p">,</span><span class="w"> </span><span class="nx">removeId</span><span class="p">);</span><span class="w">  </span><span class="c1">// null se árvore ficou vazia</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="wireleaf"><code>wireLeaf</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">wireLeaf</span><span class="p">(</span><span class="nx">leaf</span><span class="o">:</span><span class="w"> </span><span class="kt">PaneLeaf</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nx">leaf</span><span class="p">.</span><span class="nx">term</span><span class="p">.</span><span class="nx">onData</span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">Write</span><span class="p">(</span><span class="nx">leaf</span><span class="p">.</span><span class="nx">sessionId</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">));</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nx">leaf</span><span class="p">.</span><span class="nx">term</span><span class="p">.</span><span class="nx">onResize</span><span class="p">(({</span><span class="w"> </span><span class="nx">cols</span><span class="p">,</span><span class="w"> </span><span class="nx">rows</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">Resize</span><span class="p">(</span><span class="nx">leaf</span><span class="p">.</span><span class="nx">sessionId</span><span class="p">,</span><span class="w"> </span><span class="nx">cols</span><span class="p">,</span><span class="w"> </span><span class="nx">rows</span><span class="p">));</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="nx">EventsOn</span><span class="p">(</span><span class="s1">&#39;terminal-exit:&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">leaf</span><span class="p">.</span><span class="nx">sessionId</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">el</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">leafElMap</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">leaf</span><span class="p">.</span><span class="nx">sessionId</span><span class="p">);</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="nx">el</span><span class="o">?</span><span class="p">.</span><span class="nx">dispatchEvent</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">CustomEvent</span><span class="p">(</span><span class="s1">&#39;session-exit&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">      </span><span class="nx">bubbles</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">      </span><span class="nx">detail</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">sessionId</span><span class="o">:</span><span class="w"> </span><span class="kt">leaf.sessionId</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="p">}));</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">  </span><span class="p">});</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>session-exit</code> é um <code>CustomEvent</code> que borbulha pelo DOM até <code>App.svelte</code>, que o captura e remove o painel/aba.</p>
+<hr />
+<h2 id="atalhos-de-teclado">Atalhos de Teclado</h2>
+<p>Todos os atalhos são definidos em <code>App.svelte</code> via <code>svelte:window onkeydown</code>. O xterm.js intercepta <code>keydown</code> com <code>stopPropagation</code> — por isso <code>createSession</code> instala um <code>attachCustomKeyEventHandler</code> que re-despacha eventos dos atalhos como <code>KeyboardEvent</code> sintético em <code>document</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Atalho</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ctrl+T</code></td>
+<td>Nova aba</td>
+</tr>
+<tr>
+<td><code>Ctrl+W</code></td>
+<td>Fechar painel ativo</td>
+</tr>
+<tr>
+<td><code>Ctrl+Shift+W</code></td>
+<td>Fechar aba ativa</td>
+</tr>
+<tr>
+<td><code>Ctrl+Shift+D</code></td>
+<td>Split horizontal</td>
+</tr>
+<tr>
+<td><code>Ctrl+Shift+E</code></td>
+<td>Split vertical</td>
+</tr>
+<tr>
+<td><code>Ctrl+Tab</code></td>
+<td>Próxima aba</td>
+</tr>
+<tr>
+<td><code>Ctrl+,</code></td>
+<td>Abrir settings</td>
+</tr>
+<tr>
+<td><code>Ctrl+V</code></td>
+<td>Paste (tratado dentro do handler xterm)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="settings-panel">Settings Panel</h2>
+<p><code>SettingsPanel.svelte</code> permite alterar em tempo real:</p>
+<ul>
+<li>Família e tamanho de fonte</li>
+<li>Altura de linha</li>
+<li>Estilo e piscar do cursor</li>
+<li>Preset de cor</li>
+<li>Tamanho do scrollback</li>
+<li>Shell padrão (dropdown dos shells detectados)</li>
+<li>Copy-on-select</li>
+</ul>
+<p>Ao salvar, <code>settings-apply.ts</code> itera sobre todos os <code>PaneLeaf</code> abertos e aplica as novas configurações (<code>term.options.*</code>, <code>clearTextureAtlas()</code> para fontes, <code>fit.fit()</code> para reflow).</p>
+<hr />
+<h2 id="welcomescreen">WelcomeScreen</h2>
+<p>Exibida na primeira visita (sem abas abertas). O usuário vê os shells disponíveis (via <code>DetectShells()</code>) com ícones, nome amigável e atalho de teclado. Selecionar um shell cria a primeira sessão e transita para a área de trabalho principal.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar ao topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../backend-go/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Backend Go">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Backend Go
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../website/" class="md-footer__link md-footer__link--next" aria-label="Próximo: Website">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Próximo
+              </span>
+              <div class="md-ellipsis">
+                Website
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/marcelomatz/myterm" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "content.code.copy", "content.code.annotate", "search.highlight", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "Mais 1 nesta p\u00e1gina", "search.result.more.other": "Mais # nesta p\u00e1gina", "search.result.none": "Nenhum resultado encontrado", "search.result.one": "1 resultado encontrado", "search.result.other": "# resultados encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

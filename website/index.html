@@ -1,0 +1,1225 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação do website de landing page do myTerm: SvelteKit, download dinâmico via GitHub Releases API e fallbacks estáticos.">
+      
+      
+        <meta name="author" content="Marcelo Matz">
+      
+      
+        <link rel="canonical" href="https://marcelomatz.github.io/myterm/website/">
+      
+      
+        <link rel="prev" href="../frontend-svelte/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Website SvelteKit — myTerm - myTerm</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CCascadia+Code:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"Cascadia Code"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#website-sveltekit" class="md-skip">
+          Ir para o conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href=".." title="myTerm" class="md-header__button md-logo" aria-label="myTerm" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            myTerm
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Website SvelteKit — myTerm
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="cyan"  aria-label="Tema claro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Tema claro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent="cyan"  aria-label="Tema escuro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Tema escuro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando a pesquisa
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/marcelomatz/myterm" title="Ir ao repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marcelomatz/myterm
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Abas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../architecture/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Arquitetura
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../backend-go/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Backend Go
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../frontend-svelte/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Frontend Svelte
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Website
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="myTerm" class="md-nav__button md-logo" aria-label="myTerm" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    myTerm
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/marcelomatz/myterm" title="Ir ao repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marcelomatz/myterm
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend-go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend-svelte/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend Svelte
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Website
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#estrutura-do-projeto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estrutura do Projeto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pageserverts-download-dinamico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        +page.server.ts — Download Dinâmico
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="+page.server.ts — Download Dinâmico">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estrategia-de-fetch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estratégia de Fetch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extracao-das-urls-por-plataforma" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extração das URLs por Plataforma
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#formatsize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        formatSize
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pagesvelte-interface-visual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        +page.svelte — Interface Visual
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="+page.svelte — Interface Visual">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dados-recebidos-via-export-let-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dados recebidos via export let data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secoes-da-pagina" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seções da página
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-inteligente-por-os" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Download inteligente por OS
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-no-vercel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deploy no Vercel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuracao-de-build-local" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuração de Build Local
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuração de Build Local">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variaveis-de-ambiente" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variáveis de Ambiente
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fallbacks-estaticos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fallbacks Estáticos
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#estrutura-do-projeto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estrutura do Projeto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pageserverts-download-dinamico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        +page.server.ts — Download Dinâmico
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="+page.server.ts — Download Dinâmico">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#estrategia-de-fetch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estratégia de Fetch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extracao-das-urls-por-plataforma" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extração das URLs por Plataforma
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#formatsize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        formatSize
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pagesvelte-interface-visual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        +page.svelte — Interface Visual
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="+page.svelte — Interface Visual">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dados-recebidos-via-export-let-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dados recebidos via export let data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secoes-da-pagina" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seções da página
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-inteligente-por-os" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Download inteligente por OS
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-no-vercel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deploy no Vercel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuracao-de-build-local" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuração de Build Local
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuração de Build Local">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variaveis-de-ambiente" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variáveis de Ambiente
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fallbacks-estaticos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fallbacks Estáticos
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="website-sveltekit">Website SvelteKit</h1>
+<p>O website do myTerm é uma <strong>landing page de download</strong> construída com <a href="https://kit.svelte.dev">SvelteKit</a>, hospedada no <a href="https://vercel.com">Vercel</a>. Ela obtém dinamicamente a versão e URLs de download mais recentes da <strong>GitHub Releases API</strong> com fallbacks estáticos para máxima disponibilidade.</p>
+<hr />
+<h2 id="estrutura-do-projeto">Estrutura do Projeto</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>website/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── src/
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   └── routes/
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│       ├── +layout.svelte      # Layout global (meta tags, fonts)
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│       ├── +page.server.ts     # Load function: consulta GitHub Releases
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│       └── +page.svelte        # Interface visual da landing page
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>├── static/                     # Assets estáticos (favicon, OG image)
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>├── svelte.config.js            # Adapter: @sveltejs/adapter-vercel
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>└── package.json
+</code></pre></div>
+<hr />
+<h2 id="pageserverts-download-dinamico"><code>+page.server.ts</code> — Download Dinâmico</h2>
+<p>Essa é a peça central do website. Ela roda <strong>apenas no servidor</strong> (SSR ou Edge Function no Vercel) e retorna as URLs de download para a <code>+page.svelte</code>.</p>
+<h3 id="estrategia-de-fetch">Estratégia de Fetch</h3>
+<p>O <code>load</code> function tenta obter a release mais recente em dois passes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">load</span><span class="o">:</span><span class="w"> </span><span class="kt">PageServerLoad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">fetch</span><span class="p">,</span><span class="w"> </span><span class="nx">setHeaders</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nx">setHeaders</span><span class="p">({</span><span class="w"> </span><span class="s1">&#39;cache-control&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;public, max-age=600, s-maxage=600&#39;</span><span class="w"> </span><span class="p">});</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="c1">// Passo 1: Endpoint /releases/latest (mais rápido)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">      </span><span class="sb">`https://api.github.com/repos/</span><span class="si">${</span><span class="nx">GITHUB_REPO</span><span class="si">}</span><span class="sb">/releases/latest`</span><span class="p">,</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;application/vnd.github.v3+json&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;User-Agent&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;myterm-website&#39;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="p">);</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">ok</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">extractUrls</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">());</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="c1">// Passo 2: Lista de releases (fallback se /latest retornar 404)</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">listRes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">      </span><span class="sb">`https://api.github.com/repos/</span><span class="si">${</span><span class="nx">GITHUB_REPO</span><span class="si">}</span><span class="sb">/releases?per_page=10`</span><span class="p">,</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">headers</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="p">);</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">listRes</span><span class="p">.</span><span class="nx">ok</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">releases</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">listRes</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">      </span><span class="c1">// Pula drafts e prereleases — pega a primeira release estável</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">latest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">releases</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="nx">r</span><span class="p">.</span><span class="nx">draft</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">r</span><span class="p">.</span><span class="nx">prerelease</span><span class="p">)</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="nx">releases</span><span class="p">[</span><span class="mf">0</span><span class="p">];</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">latest</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">extractUrls</span><span class="p">(</span><span class="nx">latest</span><span class="p">);</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Erro ao buscar versão do GitHub:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">);</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">  </span><span class="c1">// Passo 3: URLs estáticas hardcoded (funciona 100% offline/rate-limited)</span>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="kt">FALLBACK_VERSION</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">FALLBACK_URLS</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">nullSizes</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="p">};</span>
+</code></pre></div>
+<p><strong>Por que dois passes?</strong> O endpoint <code>/releases/latest</code> retorna 404 se só existirem pre-releases ou drafts. A listagem por <code>per_page=10</code> garante que a release estável mais recente seja encontrada nesses casos.</p>
+<p><strong>Cache-Control</strong>: <code>max-age=600, s-maxage=600</code> cacheia a resposta por 10 minutos tanto no cliente quanto no CDN do Vercel — evita bater no rate limit da API do GitHub sem comprometer os dados.</p>
+<h3 id="extracao-das-urls-por-plataforma">Extração das URLs por Plataforma</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// +page.server.ts:42-74 (simplificado)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kd">function</span><span class="w"> </span><span class="nx">extractUrls</span><span class="p">(</span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">Release</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">assets</span><span class="p">;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">find</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">pred</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">n</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="kt">boolean</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">x</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">pred</span><span class="p">(</span><span class="nx">x</span><span class="p">.</span><span class="nx">name</span><span class="p">));</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">installerAsset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">find</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">n</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;installer&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">n</span><span class="p">.</span><span class="nx">endsWith</span><span class="p">(</span><span class="s1">&#39;.exe&#39;</span><span class="p">));</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">windowsAsset</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nx">find</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">n</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;windows&#39;</span><span class="p">)</span><span class="w">   </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">n</span><span class="p">.</span><span class="nx">endsWith</span><span class="p">(</span><span class="s1">&#39;.exe&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">n</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;installer&#39;</span><span class="p">));</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">macosAsset</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nx">find</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">n</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;macos&#39;</span><span class="p">)</span><span class="w">     </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">n</span><span class="p">.</span><span class="nx">endsWith</span><span class="p">(</span><span class="s1">&#39;.dmg&#39;</span><span class="p">));</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">macosZipAsset</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nx">find</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">n</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;macos&#39;</span><span class="p">)</span><span class="w">     </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">n</span><span class="p">.</span><span class="nx">endsWith</span><span class="p">(</span><span class="s1">&#39;.zip&#39;</span><span class="p">));</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">linuxAsset</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nx">find</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">n</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;linux&#39;</span><span class="p">)</span><span class="w">     </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">n</span><span class="p">.</span><span class="nx">endsWith</span><span class="p">(</span><span class="s1">&#39;.tar.gz&#39;</span><span class="p">));</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="nx">version</span><span class="o">:</span><span class="w">       </span><span class="kt">data.tag_name</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="nx">FALLBACK_VERSION</span><span class="p">,</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="nx">releasePageUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">data.html_url</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="nx">FALLBACK_URLS</span><span class="p">.</span><span class="nx">releasePageUrl</span><span class="p">,</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nx">installerUrl</span><span class="o">:</span><span class="w">  </span><span class="kt">installerAsset?.browser_download_url</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="nx">FALLBACK_URLS</span><span class="p">.</span><span class="nx">installerUrl</span><span class="p">,</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="nx">installerSize</span><span class="o">:</span><span class="w"> </span><span class="kt">formatSize</span><span class="p">(</span><span class="nx">installerAsset</span><span class="o">?</span><span class="p">.</span><span class="nx">size</span><span class="p">),</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="nx">windowsUrl</span><span class="o">:</span><span class="w">    </span><span class="kt">windowsAsset?.browser_download_url</span><span class="w">  </span><span class="o">??</span><span class="w"> </span><span class="nx">FALLBACK_URLS</span><span class="p">.</span><span class="nx">windowsUrl</span><span class="p">,</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="nx">macosUrl</span><span class="o">:</span><span class="w">      </span><span class="kt">macosAsset?.browser_download_url</span><span class="w">    </span><span class="o">??</span><span class="w"> </span><span class="nx">FALLBACK_URLS</span><span class="p">.</span><span class="nx">macosUrl</span><span class="p">,</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="c1">// ...</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">  </span><span class="p">};</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="p">}</span>
+</code></pre></div>
+<p>Os nomes dos assets seguem a convenção do <code>build.sh</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Plataforma</th>
+<th>Asset name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows (NSIS installer)</td>
+<td><code>myterm-windows-amd64-installer.exe</code></td>
+</tr>
+<tr>
+<td>Windows (portátil)</td>
+<td><code>myterm-windows-amd64.exe</code></td>
+</tr>
+<tr>
+<td>macOS (DMG universal)</td>
+<td><code>myterm-macos-universal.dmg</code></td>
+</tr>
+<tr>
+<td>macOS (ZIP)</td>
+<td><code>myterm-macos-universal.zip</code></td>
+</tr>
+<tr>
+<td>Linux (tarball)</td>
+<td><code>myterm-linux-amd64.tar.gz</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="formatsize"><code>formatSize</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">function</span><span class="w"> </span><span class="nx">formatSize</span><span class="p">(</span><span class="nx">bytes</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">undefined</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">bytes</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">bytes</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">bytes</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="p">(</span><span class="nx">bytes</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1024</span><span class="p">).</span><span class="nx">toFixed</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span><span class="si">}</span><span class="sb"> KB`</span><span class="p">;</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="p">(</span><span class="nx">bytes</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="mf">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="p">)).</span><span class="nx">toFixed</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="si">}</span><span class="sb"> MB`</span><span class="p">;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">}</span>
+</code></pre></div>
+<p>O tamanho formatado é exibido nos botões de download (ex: "8.2 MB") para ajudar o usuário a decidir antes de clicar.</p>
+<hr />
+<h2 id="pagesvelte-interface-visual"><code>+page.svelte</code> — Interface Visual</h2>
+<p>A landing page renderiza os dados passados pelo <code>load</code> function.</p>
+<h3 id="dados-recebidos-via-export-let-data">Dados recebidos via <code>export let data</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// Tipagem inferida de PageServerLoad</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">         </span><span class="c1">// ex: &quot;v0.3.1&quot;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nx">installerUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">    </span><span class="c1">// URL do instalador NSIS</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nx">installerSize</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="nx">windowsUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">      </span><span class="c1">// URL do .exe portátil</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nx">macosUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">        </span><span class="c1">// URL do .dmg</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="nx">macosZipUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">     </span><span class="c1">// URL do .zip (sem notarização)</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nx">linuxUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">        </span><span class="c1">// URL do .tar.gz</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="nx">releasePageUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">  </span><span class="c1">// URL da página no GitHub</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="c1">// + tamanhos...</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="secoes-da-pagina">Seções da página</h3>
+<table>
+<thead>
+<tr>
+<th>Seção</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hero</strong></td>
+<td>Nome, tagline, screenshot/demo, botão de download principal</td>
+</tr>
+<tr>
+<td><strong>Features</strong></td>
+<td>Grid de features (multi-tab, splits, GPU, temas, etc.)</td>
+</tr>
+<tr>
+<td><strong>Download</strong></td>
+<td>Cards por plataforma com versão, tamanho e links alternativos</td>
+</tr>
+<tr>
+<td><strong>Footer</strong></td>
+<td>Links GitHub, licença MIT</td>
+</tr>
+</tbody>
+</table>
+<h3 id="download-inteligente-por-os">Download inteligente por OS</h3>
+<p>A página detecta o SO do visitante via <code>navigator.platform</code> / <code>userAgent</code> e pré-seleciona o card de download correto. O botão de download principal no Hero aponta para o asset mais relevante (ex: instalador NSIS para Windows).</p>
+<hr />
+<h2 id="deploy-no-vercel">Deploy no Vercel</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// svelte.config.js</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">import</span><span class="w"> </span><span class="nx">adapter</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sveltejs/adapter-vercel&#39;</span><span class="p">;</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nx">kit</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nx">adapter</span><span class="o">:</span><span class="w"> </span><span class="nx">adapter</span><span class="p">({</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">      </span><span class="nx">runtime</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;edge&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Edge Functions para latência global mínima</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="p">}),</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">};</span>
+</code></pre></div>
+<p>O uso de <strong>Edge Runtime</strong> garante que o fetch da GitHub API aconteça na região mais próxima do visitante, reduzindo o TTFB. O cache de 10 minutos garante que cada Edge node não consulte a API repetidamente.</p>
+<hr />
+<h2 id="configuracao-de-build-local">Configuração de Build Local</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span><span class="w"> </span>website
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>npm<span class="w"> </span>install
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>npm<span class="w"> </span>run<span class="w"> </span>dev<span class="w">        </span><span class="c1"># http://localhost:5173</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># Para visualizar como produção:</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>npm<span class="w"> </span>run<span class="w"> </span>build
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>npm<span class="w"> </span>run<span class="w"> </span>preview
+</code></pre></div>
+<h3 id="variaveis-de-ambiente">Variáveis de Ambiente</h3>
+<p>Nenhuma variável de ambiente é obrigatória. O <code>GITHUB_REPO</code> está hardcoded em <code>+page.server.ts</code> (<code>'marcelomatz/myterm'</code>). Não há tokens de API — o website usa o endpoint público do GitHub (60 req/hora por IP de Edge, suficiente com o cache de 600s).</p>
+<hr />
+<h2 id="fallbacks-estaticos">Fallbacks Estáticos</h2>
+<p>Os fallbacks em <code>FALLBACK_URLS</code> garantem que os botões de download funcionem mesmo se:
+- A GitHub API estiver fora do ar
+- O rate limit for atingido
+- A Edge Function falhar por qualquer motivo</p>
+<p>O tradeoff é que os links podem apontar para uma versão mais antiga até o próximo deploy ou expiração do cache.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// +page.server.ts:10-19</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">FALLBACK_VERSION</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;v0.3.1&#39;</span><span class="p">;</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">BASE_RELEASE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`https://github.com/</span><span class="si">${</span><span class="nx">GITHUB_REPO</span><span class="si">}</span><span class="sb">/releases/download/</span><span class="si">${</span><span class="nx">FALLBACK_VERSION</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">FALLBACK_URLS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="nx">installerUrl</span><span class="o">:</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">BASE_RELEASE</span><span class="si">}</span><span class="sb">/myterm-windows-amd64-installer.exe`</span><span class="p">,</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="nx">windowsUrl</span><span class="o">:</span><span class="w">   </span><span class="sb">`</span><span class="si">${</span><span class="nx">BASE_RELEASE</span><span class="si">}</span><span class="sb">/myterm-windows-amd64.exe`</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">  </span><span class="nx">macosUrl</span><span class="o">:</span><span class="w">     </span><span class="sb">`</span><span class="si">${</span><span class="nx">BASE_RELEASE</span><span class="si">}</span><span class="sb">/myterm-macos-universal.dmg`</span><span class="p">,</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="nx">macosZipUrl</span><span class="o">:</span><span class="w">  </span><span class="sb">`</span><span class="si">${</span><span class="nx">BASE_RELEASE</span><span class="si">}</span><span class="sb">/myterm-macos-universal.zip`</span><span class="p">,</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span><span class="nx">linuxUrl</span><span class="o">:</span><span class="w">     </span><span class="sb">`</span><span class="si">${</span><span class="nx">BASE_RELEASE</span><span class="si">}</span><span class="sb">/myterm-linux-amd64.tar.gz`</span><span class="p">,</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span><span class="nx">releasePageUrl</span><span class="o">:</span><span class="w"> </span><span class="sb">`https://github.com/</span><span class="si">${</span><span class="nx">GITHUB_REPO</span><span class="si">}</span><span class="sb">/releases`</span><span class="p">,</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="p">};</span>
+</code></pre></div>
+<p>Atualizar a constante <code>FALLBACK_VERSION</code> antes de cada deploy garante que o fallback sempre aponte para a release correta.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar ao topo
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Rodapé" >
+        
+          
+          <a href="../frontend-svelte/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Frontend Svelte">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Frontend Svelte
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/marcelomatz/myterm" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "content.code.copy", "content.code.annotate", "search.highlight", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "Mais 1 nesta p\u00e1gina", "search.result.more.other": "Mais # nesta p\u00e1gina", "search.result.none": "Nenhum resultado encontrado", "search.result.one": "1 resultado encontrado", "search.result.other": "# resultados encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
