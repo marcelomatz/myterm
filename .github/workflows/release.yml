@@ -13,11 +13,8 @@ jobs:
   create-release:
     name: Create Release
     runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create.outputs.upload_url }}
     steps:
       - name: Create GitHub Release
-        id: create
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
@@ -26,17 +23,21 @@ jobs:
             ## myTerm ${{ github.ref_name }}
 
             ### Download
+
             | Plataforma | Arquivo | Tipo |
             |------------|---------|------|
-            | **Windows** | `myterm-amd64-installer.exe` | Instalador NSIS (recomendado) |
-            | **Windows** | `myterm-windows-amd64.exe` | Executável portátil |
-            | **macOS** | `myterm-macos-universal.dmg` | Imagem de disco (recomendado) |
-            | **macOS** | `myterm-macos-universal.zip` | App compactado |
+            | 🪟 **Windows** | `myterm-windows-amd64-installer.exe` | Instalador NSIS (recomendado) |
+            | 🪟 **Windows** | `myterm-windows-amd64.exe` | Executável portátil |
+            | 🍎 **macOS** | `myterm-macos-universal.dmg` | Imagem de disco (recomendado) |
+            | 🍎 **macOS** | `myterm-macos-universal.zip` | App compactado |
+            | 🐧 **Linux** | `myterm-linux-amd64.tar.gz` | Binário compactado |
 
             ### Notas
-            **Windows:** O instalador é autoassinado. Se o SmartScreen aparecer, clique em _More info → Run anyway_.
+            **Windows:** Instalador autoassinado — se o SmartScreen aparecer, clique em _More info → Run anyway_.
 
-            **macOS:** O app não é notarizado pela Apple. Na primeira execução, vá em _System Settings → Privacy & Security → Open Anyway_.
+            **macOS:** App não notarizado — primeira execução: _System Settings → Privacy & Security → Open Anyway_.
+
+            **Linux:** Extraia e execute. Pode ser necessário `chmod +x myterm`.
 
             Veja o [README](https://github.com/${{ github.repository }}) para instruções completas.
           draft: false
@@ -47,18 +48,14 @@ jobs:
     name: Build Windows
     needs: create-release
     runs-on: windows-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -69,38 +66,40 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Build (exe + NSIS installer)
+      - name: Build Windows
         run: wails build --nsis --platform windows/amd64
 
-      - name: Rename portable exe
-        run: Rename-Item build\bin\myterm.exe myterm-windows-amd64.exe
+      - name: Renomear portátil
         shell: pwsh
+        run: Rename-Item build\bin\myterm.exe myterm-windows-amd64.exe
 
-      - name: Upload installer
+      - name: Renomear instalador
+        shell: pwsh
+        run: |
+          $old = Get-ChildItem build\bin\*installer*.exe | Select-Object -First 1
+          Rename-Item $old.FullName myterm-windows-amd64-installer.exe
+
+      - name: Upload Windows assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
             build/bin/myterm-windows-amd64.exe
-            build/bin/myterm-*-installer.exe
+            build/bin/myterm-windows-amd64-installer.exe
 
   # ── Build macOS ───────────────────────────────────────────────────────────
   build-macos:
     name: Build macOS
     needs: create-release
     runs-on: macos-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -111,7 +110,7 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Build (universal: arm64 + amd64)
+      - name: Build macOS universal
         run: wails build --platform darwin/universal
 
       - name: Criar DMG
@@ -131,12 +130,60 @@ jobs:
       - name: Criar ZIP do .app
         run: |
           cd build/bin
-          zip -r myterm-macos-universal.zip myterm.app
+          zip -r ../../myterm-macos-universal.zip myterm.app
 
-      - name: Upload assets macOS
+      - name: Upload macOS assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
             myterm-macos-universal.dmg
-            build/bin/myterm-macos-universal.zip
+            myterm-macos-universal.zip
+
+  # ── Build Linux ───────────────────────────────────────────────────────────
+  build-linux:
+    name: Build Linux
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependências de sistema (Wails/GTK)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            pkg-config \
+            libglib2.0-dev
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Linux
+        run: wails build --platform linux/amd64
+
+      - name: Criar tar.gz
+        run: |
+          cd build/bin
+          tar -czf ../../myterm-linux-amd64.tar.gz myterm
+
+      - name: Upload Linux assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            myterm-linux-amd64.tar.gz
