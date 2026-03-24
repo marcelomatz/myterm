@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build & Release (Windows)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build (exe + NSIS installer)
+        run: wails build --nsis --platform windows/amd64
+
+      - name: List build output
+        run: Get-ChildItem build\bin\ -Recurse
+        shell: pwsh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "myTerm ${{ github.ref_name }}"
+          body: |
+            ## myTerm ${{ github.ref_name }}
+
+            ### Download
+            - **myterm-installer.exe** — instalador Windows (recomendado)
+            - **myterm.exe** — executável portátil
+
+            ### Notas
+            > ⚠️ O instalador é autoassinado. O SmartScreen do Windows pode exibir aviso "Publisher unknown" — clique em _More info → Run anyway_.
+
+            Veja o [README](https://github.com/${{ github.repository }}) para instruções completas.
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: |
+            build/bin/myterm.exe
+            build/bin/myterm-*-installer.exe
