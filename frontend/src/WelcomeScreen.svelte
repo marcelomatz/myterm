@@ -10,7 +10,7 @@
 
   let { updateVersion, updateUrl, onDismissUpdate }: Props = $props();
 
-  const VERSION = "0.3.0";
+  const VERSION = "0.3.3";
 
 
 
