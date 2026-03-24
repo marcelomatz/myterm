@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { BrowserOpenURL } from '../wailsjs/runtime/runtime';
+  import { GetVersion } from '../wailsjs/go/api/App';
 
   interface Props {
     updateVersion?: string;
@@ -10,9 +11,15 @@
 
   let { updateVersion, updateUrl, onDismissUpdate }: Props = $props();
 
-  const VERSION = "0.3.3";
+  let version = $state("...");
 
-
+  onMount(async () => {
+    try {
+      version = await GetVersion();
+    } catch {
+      version = "?";
+    }
+  });
 
   const BANNER = `
   ███╗   ███╗██╗   ██╗████████╗███████╗██████╗ ███╗   ███╗
@@ -22,9 +29,9 @@
   ██║ ╚═╝ ██║   ██║      ██║   ███████╗██║  ██║██║ ╚═╝ ██║
   ╚═╝     ╚═╝   ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝`.trimStart();
 
-  const LINES = [
+  const LINES = $derived([
     "",
-    `  myterm ${VERSION} `,
+    `  myterm ${version} `,
     "",
     "  ┌─────────────────────────────────────────────────────────┐",
     "  │  QUICK START                                            │",
@@ -40,7 +47,7 @@
     "",
     "  A terminal emulator for humans - Built by Matz",
     "",
-  ].join("\n");
+  ].join("\n"));
 
   // 35 random noise particles — generated once at component creation.
   interface Particle {

@@ -14,13 +14,15 @@ import (
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
+// CurrentVersion is injected at build time via:
+//
+//	-ldflags "-X myterm/api.CurrentVersion=vX.Y.Z"
+//
+// Falls back to "dev" for local/dev builds.
+var CurrentVersion = "dev"
+
 const (
-	// CurrentVersion is the version of this build — compared against GitHub releases.
-	// Keep in sync with wails.json "productVersion".
-	CurrentVersion = "v0.3.4"
-
 	// maxWriteBytes caps the PTY stdin payload to prevent flooding.
-
 	maxWriteBytes = 64 * 1024 // 64 KiB
 
 	// PTY dimension limits — xterm.js clamps visually; we clamp defensively.
@@ -93,6 +95,11 @@ func NewApp() *App {
 	return &App{
 		sessions: core.NewSessionManager(),
 	}
+}
+
+// GetVersion returns the current build version — callable from the frontend.
+func (a *App) GetVersion() string {
+	return CurrentVersion
 }
 
 // startup is called by Wails when the app initialises.
