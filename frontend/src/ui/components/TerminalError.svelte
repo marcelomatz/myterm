@@ -93,7 +93,7 @@
       loadingMessageIdx = (loadingMessageIdx + 1) % loadingMessages.length;
     }, 2500);
 
-    const prompt = `You are a helpful CLI assistant. An error occurred. Explain the cause briefly and suggest a fix. Use markdown.
+    const prompt = `${dict.systemPrompt}
 Command: ${errorEvent.command}
 Error Output:
 ${errorEvent.output}`;

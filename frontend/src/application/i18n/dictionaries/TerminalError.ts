@@ -10,7 +10,8 @@ export const dictTerminalError = {
     analyzeBtn: "Analisar com IA (Ollama)",
     dismiss: "Ignorar",
     errorConnecting: "Erro ao conectar ao Ollama via Go bridge",
-    makeSure: "Certifique-se de que o Ollama está rodando em"
+    makeSure: "Certifique-se de que o Ollama está rodando em",
+    systemPrompt: "Você é um assistente de terminal útil. Ocorreu um erro. Explique a causa brevemente e sugira uma correção. Responda EM PORTUGUÊS e use markdown."
   },
   en: {
     loading1: "Connecting to model...",
@@ -23,6 +24,7 @@ export const dictTerminalError = {
     analyzeBtn: "Analyze with AI (Ollama)",
     dismiss: "Dismiss",
     errorConnecting: "Error connecting to Ollama via Go bridge",
-    makeSure: "Make sure Ollama is running at"
+    makeSure: "Make sure Ollama is running at",
+    systemPrompt: "You are a helpful CLI assistant. An error occurred. Explain the cause briefly and suggest a fix. Reply IN ENGLISH and use markdown."
   },
 };
