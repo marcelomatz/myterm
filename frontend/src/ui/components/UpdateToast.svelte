@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BrowserOpenURL } from '../../wailsjs/runtime/runtime';
+  import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
 
   interface Props {
     version: string;

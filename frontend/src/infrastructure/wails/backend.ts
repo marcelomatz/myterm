@@ -11,7 +11,7 @@ export {
   CloseSession,
   Write,
   Resize,
-} from '../../wailsjs/go/api/App';
+} from '../../../wailsjs/go/wails/App';
 
 // ForceQuit and CheckForUpdates are bound Go methods accessed via the Wails
 // global so we don't depend on the generated .d.ts (only appears after the
@@ -19,7 +19,7 @@ export {
 
 export function ForceQuit(): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (window as any).go.api.App.ForceQuit();
+  return (window as any).go.wails.App.ForceQuit();
 }
 
 export interface UpdateInfo {
@@ -30,6 +30,16 @@ export interface UpdateInfo {
 
 export function CheckForUpdates(): Promise<UpdateInfo> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (window as any).go.api.App.CheckForUpdates();
+  return (window as any).go.wails.App.CheckForUpdates();
+}
+
+export function GetOllamaModels(host: string): Promise<string[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (window as any).go.wails.App.GetOllamaModels(host);
+}
+
+export function GenerateOllamaResponse(host: string, model: string, prompt: string): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (window as any).go.wails.App.GenerateOllamaResponse(host, model, prompt);
 }
 

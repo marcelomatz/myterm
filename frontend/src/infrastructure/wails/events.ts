@@ -9,4 +9,4 @@ export {
   EventsOn,
   EventsOff,
   EventsEmit,
-} from '../../wailsjs/runtime/runtime';
+} from '../../../wailsjs/runtime/runtime';

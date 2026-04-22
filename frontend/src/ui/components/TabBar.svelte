@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { shellBadge } from './ui/shell-picker';
-  import type { Tab } from './domain/types';
+  import { shellBadge } from '../shell-picker';
+  import type { Tab } from '../../domain/types';
 
   interface Props {
     tabs: Tab[];
@@ -9,8 +9,9 @@
     onClose: (id: string) => void;
     onNewTab: () => void;
     onRename: (id: string, title: string) => void;
+    onSettings: () => void;
   }
-  const { tabs, activeTabId, onActivate, onClose, onNewTab, onRename }: Props = $props();
+  const { tabs, activeTabId, onActivate, onClose, onNewTab, onRename, onSettings }: Props = $props();
 
   const SETTINGS_TAB_ID = '__settings__';
 
@@ -84,4 +85,8 @@
   {/each}
 
   <button id="new-tab-btn" title="New tab (Ctrl+Shift+T)" onclick={onNewTab}>+</button>
+  
+  <div style="flex: 1;"></div>
+  
+  <button id="settings-btn" style="margin-right: 12px;" title="Settings (Ctrl+,)" onclick={onSettings}>⚙</button>
 </div>

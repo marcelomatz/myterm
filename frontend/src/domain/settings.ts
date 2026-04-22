@@ -108,6 +108,9 @@ export interface AppSettings {
   defaultShell: string;   // empty = auto-detect
   // Clipboard
   copyOnSelect: boolean;  // copy to clipboard on text selection
+  // AI Integration
+  ollamaHost: string;
+  ollamaModel: string;
 }
 
 const STORAGE_KEY = 'myterm.settings';
@@ -122,6 +125,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   scrollback: 1000,
   defaultShell: '',
   copyOnSelect: false,
+  ollamaHost: 'http://127.0.0.1:11434',
+  ollamaModel: 'llama3',
 };
 
 // In-memory singleton so callers don't read localStorage repeatedly.

@@ -1,4 +1,4 @@
-package core
+package application
 
 import (
 	"context"
@@ -7,20 +7,23 @@ import (
 
 	"github.com/google/uuid"
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
+
+	"myterm/internal/domain"
+	"myterm/internal/infrastructure/pty"
 )
 
 // SessionManager owns N independent PTY sessions.
 // Each session has a unique UUID used as a Wails event namespace.
 type SessionManager struct {
 	mu       sync.RWMutex
-	sessions map[string]*Terminal
+	sessions map[string]domain.ITerminal
 	ctx      context.Context
 }
 
 // NewSessionManager creates an empty, uninitialised SessionManager.
 func NewSessionManager() *SessionManager {
 	return &SessionManager{
-		sessions: make(map[string]*Terminal),
+		sessions: make(map[string]domain.ITerminal),
 	}
 }
 
@@ -34,7 +37,7 @@ func (s *SessionManager) Start(ctx context.Context) {
 func (s *SessionManager) NewSession(shell string) (string, error) {
 	id := uuid.NewString()
 
-	t := NewTerminal()
+	t := pty.NewTerminal()
 	if err := t.StartWithID(s.ctx, id, shell); err != nil {
 		return "", fmt.Errorf("NewSession: %w", err)
 	}
@@ -92,11 +95,11 @@ func (s *SessionManager) Resize(id string, cols, rows int) error {
 // CloseAll terminates every active session (called on app shutdown).
 func (s *SessionManager) CloseAll() {
 	s.mu.Lock()
-	sessions := make(map[string]*Terminal, len(s.sessions))
+	sessions := make(map[string]domain.ITerminal, len(s.sessions))
 	for id, t := range s.sessions {
 		sessions[id] = t
 	}
-	s.sessions = make(map[string]*Terminal)
+	s.sessions = make(map[string]domain.ITerminal)
 	s.mu.Unlock()
 
 	for _, t := range sessions {

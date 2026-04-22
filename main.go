@@ -7,17 +7,16 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
-	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
-	"myterm/api"
+	wails_app "myterm/internal/adapters/wails"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
 
 func main() {
-	app := api.NewApp()
+	app := wails_app.NewApp()
 
 	err := wails.Run(&options.App{
 		Title:     "MyTerm",
@@ -25,7 +24,6 @@ func main() {
 		Height:    700,
 		MinWidth:  400,
 		MinHeight: 300,
-		Frameless: true,
 
 		// Pure black background matches xterm.js theme.
 		BackgroundColour: &options.RGBA{R: 30, G: 30, B: 30, A: 255},
@@ -46,14 +44,9 @@ func main() {
 		Windows: &windows.Options{
 			WebviewIsTransparent: false,
 			WindowIsTranslucent:  false,
-			DisableWindowIcon:    true,
+			DisableWindowIcon:    false, // Default icon
 			DisablePinchZoom:     true,
 			IsZoomControlEnabled: false,
-		},
-		Mac: &mac.Options{
-			TitleBar:             mac.TitleBarHiddenInset(),
-			WebviewIsTransparent: true,
-			WindowIsTranslucent:  false,
 		},
 		Linux: &linux.Options{
 			ProgramName: "myterm",

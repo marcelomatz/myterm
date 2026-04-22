@@ -1,15 +1,19 @@
-package api
+package wails
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
-	"myterm/core"
 	"net/http"
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"myterm/internal/application"
+	"myterm/internal/infrastructure/pty"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -86,14 +90,14 @@ func (a *App) CheckForUpdates() UpdateInfo {
 // This is the only struct bound to Wails; it delegates all logic to core.
 type App struct {
 	ctx       context.Context
-	sessions  *core.SessionManager
+	sessions  *application.SessionManager
 	forceQuit atomic.Bool // set by ForceQuit() to break the OnBeforeClose loop
 }
 
 // NewApp creates a new App instance.
 func NewApp() *App {
 	return &App{
-		sessions: core.NewSessionManager(),
+		sessions: application.NewSessionManager(),
 	}
 }
 
@@ -153,7 +157,7 @@ func (a *App) ForceQuit() {
 // DetectShells returns the list of available shell executables on this system.
 // Called once by the frontend at startup to populate the shell picker.
 func (a *App) DetectShells() []string {
-	return core.DetectShells()
+	return pty.DetectShells()
 }
 
 // NewSession creates a new PTY-backed shell session and returns its ID.
@@ -162,7 +166,7 @@ func (a *App) DetectShells() []string {
 // Pass an empty string to auto-detect the best shell.
 func (a *App) NewSession(shell string) string {
 	if shell != "" {
-		allowed := core.DetectShells()
+		allowed := pty.DetectShells()
 		if !contains(allowed, shell) {
 			log.Printf("NewSession rejected unknown shell %q", shell)
 			return ""
@@ -214,4 +218,85 @@ func contains(slice []string, s string) bool {
 		}
 	}
 	return false
+}
+
+type OllamaTagsResponse struct {
+	Models []struct {
+		Name string `json:"name"`
+	} `json:"models"`
+}
+
+// GetOllamaModels fetches the available models from the local Ollama instance.
+func (a *App) GetOllamaModels(host string) ([]string, error) {
+	url := strings.TrimRight(host, "/") + "/api/tags"
+	
+	// Create a client with a short timeout to prevent hanging if Ollama is down
+	client := &http.Client{Timeout: 2 * 1000 * 1000 * 1000} // 2 seconds
+	
+	resp, err := client.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
+	}
+
+	var data OllamaTagsResponse
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		return nil, err
+	}
+
+	var names []string
+	for _, m := range data.Models {
+		names = append(names, m.Name)
+	}
+	return names, nil
+}
+
+// GenerateOllamaResponse sends a prompt to Ollama and streams the response via Wails events.
+func (a *App) GenerateOllamaResponse(host, model, prompt string) error {
+	url := strings.TrimRight(host, "/") + "/api/generate"
+	
+	payload := map[string]interface{}{
+		"model":  model,
+		"prompt": prompt,
+		"stream": true,
+	}
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status: %d", resp.StatusCode)
+	}
+
+	reader := bufio.NewReader(resp.Body)
+	for {
+		line, err := reader.ReadString('\n')
+		if len(line) > 0 {
+			wailsRuntime.EventsEmit(a.ctx, "ollama-chunk", line)
+		}
+		if err != nil {
+			break
+		}
+	}
+	
+	wailsRuntime.EventsEmit(a.ctx, "ollama-done")
+	return nil
 }

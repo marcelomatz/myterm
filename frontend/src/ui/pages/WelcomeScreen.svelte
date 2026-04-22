@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { BrowserOpenURL } from '../wailsjs/runtime/runtime';
-  import { GetVersion } from '../wailsjs/go/api/App';
+  import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
+  import { GetVersion } from '../../../wailsjs/go/wails/App';
 
   interface Props {
     updateVersion?: string;

@@ -1,5 +1,5 @@
-import { Write, Resize } from '../bridge/backend';
-import { EventsOn } from '../bridge/events';
+import { Write, Resize } from '../infrastructure/wails/backend';
+import { EventsOn } from '../infrastructure/wails/events';
 import { createSession, destroySession, attachGpuRenderer } from './session';
 import type { PaneLeaf, PaneNode, PaneSplit } from '../domain/types';
 

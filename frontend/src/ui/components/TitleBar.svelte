@@ -1,7 +1,7 @@
 <script lang="ts">
   import {
     Quit, WindowMinimise, WindowToggleMaximise,
-  } from '../wailsjs/runtime/runtime';
+  } from '../../../wailsjs/runtime/runtime';
 
   interface Props {
     onSettings: () => void;

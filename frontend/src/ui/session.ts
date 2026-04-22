@@ -2,8 +2,10 @@ import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import { WebglAddon } from '@xterm/addon-webgl';
 import { CanvasAddon } from '@xterm/addon-canvas';
-import { NewSession, CloseSession } from '../bridge/backend';
-import { EventsOn, EventsOff } from '../bridge/events';
+import { NewSession, CloseSession, Write } from '../infrastructure/wails/backend';
+import { EventsOn, EventsOff } from '../infrastructure/wails/events';
+import { WebLinksAddon } from '@xterm/addon-web-links';
+import { createCommandTracker, CommandTracker } from './command-tracker';
 import type { PaneLeaf } from '../domain/types';
 import { getSettings, getPreset } from '../domain/settings';
 import { ensureFont } from '../domain/font-loader';
@@ -83,8 +85,12 @@ export async function createSession(
 
   const preset = getPreset(s.colorPresetId);
 
+  const family = s.fontFamily === 'monospace' 
+    ? 'monospace' 
+    : `'${s.fontFamily}', 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace`;
+
   const term = new Terminal({
-    fontFamily: s.fontFamily,
+    fontFamily: family,
     fontSize: s.fontSize,
     lineHeight: s.lineHeight,
     cursorBlink: s.cursorBlink,
@@ -96,6 +102,16 @@ export async function createSession(
 
   const fit = new FitAddon();
   term.loadAddon(fit);
+  term.loadAddon(new WebLinksAddon());
+
+  const tracker = createCommandTracker(sessionId);
+  term.onData(data => tracker.trackInput(data));
+
+  setTimeout(() => {
+    const setup = CommandTracker.shellIntegrationSetup(effectiveShell);
+    Write(sessionId, setup);
+    setTimeout(() => Write(sessionId, "clear\r"), 300);
+  }, 500);
 
   // Pre-load the web font so it's ready when term.open() is called in renderPane.
   await ensureFont(s.fontFamily);
@@ -148,7 +164,10 @@ export async function createSession(
 
 
   // Forward PTY output → xterm
-  EventsOn('terminal-output:' + sessionId, (data: string) => term.write(data));
+  EventsOn('terminal-output:' + sessionId, (data: string) => {
+    term.write(data);
+    tracker.trackOutput(data);
+  });
 
   // Copy on select
   if (s.copyOnSelect) {

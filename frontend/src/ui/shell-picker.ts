@@ -1,4 +1,4 @@
-import { DetectShells } from '../bridge/backend';
+import { DetectShells } from '../infrastructure/wails/backend';
 import { getSettings } from '../domain/settings';
 import { shellMeta } from '../domain/shell-meta';
 

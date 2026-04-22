@@ -1,4 +1,4 @@
-package core
+package pty
 
 import (
 	"context"
@@ -9,6 +9,8 @@ import (
 
 	"github.com/aymanbagabas/go-pty"
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
+
+	"myterm/internal/domain"
 )
 
 // Terminal manages a PTY-backed shell process.
@@ -18,6 +20,9 @@ type Terminal struct {
 	ptm    pty.Pty
 	closed atomic.Bool // set by Close() so the read goroutine won't emit a redundant terminal-exit event
 }
+
+// Ensure Terminal implements ITerminal
+var _ domain.ITerminal = (*Terminal)(nil)
 
 // NewTerminal creates an uninitialised Terminal.
 func NewTerminal() *Terminal {
