@@ -138,16 +138,8 @@ export async function createSession(
         }
       }
 
-      // Ctrl+V — paste from clipboard directly here (no synthetic re-dispatch).
-      // Handling it inside xterm's custom handler avoids the double-paste that
-      // would occur if we re-dispatched to App.svelte (svelte:window fires once
-      // AND the capture listener on window fires once → two pastes).
-      if (!ev.shiftKey && !ev.altKey && ev.key.toLowerCase() === 'v' && !ev.repeat) {
-        navigator.clipboard.readText()
-          .then(text => { if (text) term.paste(text); })
-          .catch(() => { /* clipboard empty or denied */ });
-        return false; // prevent xterm from sending \x16 to the PTY
-      }
+      // Ctrl+V is handled natively by xterm via the browser's 'paste' event.
+      // We don't intercept it here to avoid double-pasting.
 
       const isOurShortcut =
         (ev.shiftKey && 'WwDdEeTt'.includes(ev.key)) ||
