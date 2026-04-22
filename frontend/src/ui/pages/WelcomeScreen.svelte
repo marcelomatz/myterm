@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
-  import { GetVersion } from '../../../wailsjs/go/wails/App';
+  import { BrowserOpenURL } from "../../../wailsjs/runtime/runtime";
+  import { GetVersion } from "../../../wailsjs/go/wails/App";
 
   interface Props {
     updateVersion?: string;
@@ -29,25 +29,27 @@
   ██║ ╚═╝ ██║   ██║      ██║   ███████╗██║  ██║██║ ╚═╝ ██║
   ╚═╝     ╚═╝   ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝`.trimStart();
 
-  const LINES = $derived([
-    "",
-    `  myterm ${version} `,
-    "",
-    "  ┌──────────────────────────────────────────────────────────────┐",
-    "  │  QUICK START                                            │",
-    "  │                                                         │",
-    "  │  Click  [+]              Open a new terminal tab        │",
-    "  │  Ctrl+Shift+T            New tab (same shell)           │",
-    "  │  Ctrl+Shift+D            Split horizontally             │",
-    "  │  Ctrl+Shift+E            Split vertically               │",
-    "  │  Ctrl+Shift+W            Close focused pane             │",
-    "  │  Ctrl+Tab                Cycle through tabs             │",
-    "  │  Ctrl+,                  Open settings                  │",
-    "  └──────────────────────────────────────────────────────────────┘",
-    "",
-    "  A terminal emulator for humans - Built by Matz",
-    "",
-  ].join("\n"));
+  const LINES = $derived(
+    [
+      "",
+      `  myterm ${version} `,
+      "",
+      "  ┌──────────────────────────────────────────────────────────────┐",
+      "  │  QUICK START                                            │",
+      "  │                                                         │",
+      "  │  Click  [+]              Open a new terminal tab        │",
+      "  │  Ctrl+Shift+T            New tab (same shell)           │",
+      "  │  Ctrl+Shift+D            Split horizontally             │",
+      "  │  Ctrl+Shift+E            Split vertically               │",
+      "  │  Ctrl+Shift+W            Close focused pane             │",
+      "  │  Ctrl+Tab                Cycle through tabs             │",
+      "  │  Ctrl+,                  Open settings                  │",
+      "  └──────────────────────────────────────────────────────────────┘",
+      "",
+      "  A terminal emulator for humans - Built by Marcelo Matz",
+      "",
+    ].join("\n"),
+  );
 
   // 35 random noise particles — generated once at component creation.
   interface Particle {
@@ -99,7 +101,11 @@
         <button class="update-link" onclick={() => BrowserOpenURL(updateUrl!)}>
           {updateVersion}
         </button>
-        <button class="update-dismiss" onclick={onDismissUpdate} aria-label="Fechar">✕</button>
+        <button
+          class="update-dismiss"
+          onclick={onDismissUpdate}
+          aria-label="Fechar">✕</button
+        >
       </div>
     {/if}
     <div class="welcome-cta">
@@ -108,7 +114,6 @@
     </div>
   </div>
 </div>
-
 
 <style>
   .welcome-screen {
@@ -278,7 +283,9 @@
     line-height: 1;
   }
 
-  .update-dismiss:hover { color: #ffb300; }
+  .update-dismiss:hover {
+    color: #ffb300;
+  }
 
   @keyframes ws-blink {
     0%,

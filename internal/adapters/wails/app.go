@@ -20,7 +20,7 @@ import (
 
 // CurrentVersion is injected at build time via:
 //
-//	-ldflags "-X myterm/api.CurrentVersion=vX.Y.Z"
+//	-ldflags "-X myterm/internal/adapters/wails.CurrentVersion=vX.Y.Z"
 //
 // Falls back to "dev" for local/dev builds.
 var CurrentVersion = "dev"
@@ -76,12 +76,12 @@ func (a *App) CheckForUpdates() UpdateInfo {
 		return UpdateInfo{}
 	}
 
-	latest := strings.TrimSpace(release.TagName)
-	current := strings.TrimSpace(CurrentVersion)
+	latest := strings.TrimPrefix(strings.TrimSpace(release.TagName), "v")
+	current := strings.TrimPrefix(strings.TrimSpace(CurrentVersion), "v")
 
 	return UpdateInfo{
-		HasUpdate: latest != "" && latest != current,
-		Version:   latest,
+		HasUpdate: latest != "" && latest != current && current != "dev",
+		Version:   release.TagName,
 		URL:       release.HTMLURL,
 	}
 }
