@@ -426,6 +426,22 @@
       renderWorkspace();
     }
   });
+
+  // Automatically refit terminal sizes when the container resizes (e.g. window maximized)
+  $effect(() => {
+    if (!terminalEl) return;
+    const ro = new ResizeObserver(() => {
+      const t = activeTab();
+      if (t && t.id !== SETTINGS_TAB_ID) {
+        const leaves = collectLeaves(t.root);
+        for (const leaf of leaves) {
+          try { leaf.fit.fit(); } catch (e) { /* ignore errors during rapid resize */ }
+        }
+      }
+    });
+    ro.observe(terminalEl);
+    return () => ro.disconnect();
+  });
 </script>
 
 <svelte:window onkeydown={onKeydown} />
