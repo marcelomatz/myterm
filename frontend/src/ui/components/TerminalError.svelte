@@ -27,6 +27,7 @@
   ]);
   let loadingMessageIdx = $state(0);
   let loadingInterval: any;
+  let autoCloseTimer: any;
 
   function renderMarkdown(text: string) {
     if (!text) return "";
@@ -59,6 +60,13 @@
         : `'${s.fontFamily}', 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace`;
   });
 
+  function cancelAutoClose() {
+    if (autoCloseTimer) {
+      clearTimeout(autoCloseTimer);
+      autoCloseTimer = null;
+    }
+  }
+
   function onTerminalError(e: Event) {
     errorEvent = (e as CustomEvent).detail;
     analysisResult = "";
@@ -68,6 +76,11 @@
       clearInterval(loadingInterval);
       loadingInterval = null;
     }
+    
+    cancelAutoClose();
+    autoCloseTimer = setTimeout(() => {
+      dismiss();
+    }, 5000);
   }
 
   onMount(() => {
@@ -77,12 +90,14 @@
   });
 
   function dismiss() {
+    cancelAutoClose();
     errorEvent = null;
     analysisResult = "";
     isAnalyzing = false;
   }
 
   async function analyzeWithOllama() {
+    cancelAutoClose();
     if (!errorEvent) return;
     isAnalyzing = true;
     analysisResult = "";
@@ -134,7 +149,8 @@ ${errorEvent.output}`;
 
 {#if errorEvent}
   <div class="terminal-error-wrapper" style="--font: {fontFamily}">
-    <div class="terminal-error-box">
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="terminal-error-box" onmouseenter={cancelAutoClose}>
       <div class="error-header">
         <span class="error-badge">✖ ERROR</span>
         <span class="command-text">{errorEvent.command}</span>
