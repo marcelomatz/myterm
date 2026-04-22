@@ -60,10 +60,13 @@ export class CommandTracker {
     if (ERROR_REGEX.test(stripped)) {
       if (this.errorDebounceTimer) window.clearTimeout(this.errorDebounceTimer)
       this.errorDebounceTimer = window.setTimeout(() => {
+        const cmd = this.activeCommand.trim()
+        if (cmd.length > 0 && cmd.length <= 2) return;
+
         const raw = this.outputBuffer.replace(ANSI_STRIP, '').trim()
         const output = raw.length > 4096 ? raw.slice(-4096) : raw
         window.dispatchEvent(new CustomEvent('myterm:terminal-error', {
-          detail: { sessionId: this.sessionId, command: this.activeCommand.trim() || 'Running Process', output }
+          detail: { sessionId: this.sessionId, command: cmd || 'Running Process', output }
         }))
       }, 1200)
     }
@@ -143,6 +146,8 @@ export class CommandTracker {
 export function createCommandTracker(sessionId: string): CommandTracker {
   return new CommandTracker(sessionId, ({ command, exitCode, output }) => {
     if (exitCode > 0) {
+      if (command.length > 0 && command.length <= 2) return;
+
       window.dispatchEvent(new CustomEvent('myterm:terminal-error', { 
         detail: { sessionId, command, output } 
       }))
