@@ -116,6 +116,8 @@ export async function createSession(
   // Pre-load the web font so it's ready when term.open() is called in renderPane.
   await ensureFont(s.fontFamily);
 
+  let lastPaste = 0;
+
   // Allow our window-level shortcuts to bubble through even when the terminal
   // is focused. xterm.js calls stopPropagation() on all keydown events it
   // handles — returning false here makes xterm skip its own handling so the
@@ -138,10 +140,19 @@ export async function createSession(
         }
       }
 
-      // Ctrl+V is handled natively by xterm via the browser's 'paste' event.
-      // We don't intercept it here to avoid double-pasting.
-
-      const isOurShortcut =
+      // Ctrl+V — paste from clipboard.
+      // We manually intercept and paste to avoid xterm sending \x16.
+      // A debounce is used to prevent double pastes if multiple events fire.
+      if (!ev.shiftKey && !ev.altKey && ev.key.toLowerCase() === 'v' && !ev.repeat) {
+        const now = Date.now();
+        if (now - lastPaste > 100) {
+          lastPaste = now;
+          navigator.clipboard.readText()
+            .then(text => { if (text) term.paste(text); })
+            .catch(() => { /* ignore */ });
+        }
+        return false; // Prevent xterm from sending \x16 and double-processing
+      }
         (ev.shiftKey && 'WwDdEeTt'.includes(ev.key)) ||
         ev.key === ',' ||
         ev.key === 'Tab';
