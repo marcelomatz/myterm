@@ -126,11 +126,23 @@ export async function createSession(
     // NOTE: only block repeats for our own shortcuts — character repetition
     // (holding 'a' to get 'aaaaa') must still reach xterm normally.
     if (ev.ctrlKey) {
+      // Ctrl+C — Copy if text is selected, otherwise let xterm send SIGINT.
+      if (!ev.shiftKey && !ev.altKey && ev.key.toLowerCase() === 'c' && !ev.repeat) {
+        if (term.hasSelection()) {
+          const sel = term.getSelection();
+          if (sel) {
+            navigator.clipboard.writeText(sel).catch(() => {});
+            term.clearSelection();
+          }
+          return false; // Prevent xterm from sending SIGINT (\x03)
+        }
+      }
+
       // Ctrl+V — paste from clipboard directly here (no synthetic re-dispatch).
       // Handling it inside xterm's custom handler avoids the double-paste that
       // would occur if we re-dispatched to App.svelte (svelte:window fires once
       // AND the capture listener on window fires once → two pastes).
-      if (!ev.shiftKey && !ev.altKey && ev.key === 'v' && !ev.repeat) {
+      if (!ev.shiftKey && !ev.altKey && ev.key.toLowerCase() === 'v' && !ev.repeat) {
         navigator.clipboard.readText()
           .then(text => { if (text) term.paste(text); })
           .catch(() => { /* clipboard empty or denied */ });
