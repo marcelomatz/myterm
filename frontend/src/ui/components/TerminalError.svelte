@@ -12,14 +12,19 @@
   let isAnalyzing = $state(false);
   let analysisResult = $state("");
 
-  const loadingMessages = [
-    "Conectando ao modelo...",
-    "Analisando informações...",
-    "Depurando os erros...",
-    "Pensando sobre os erros da vida...",
-    "Decifrando os logs arcanos...",
-    "Consultando o oráculo do terminal...",
-  ];
+  import { i18nStore } from "../../application/i18n.store.svelte";
+  import { dictTerminalError } from "../../application/i18n/dictionaries/TerminalError";
+
+  let dict = $derived(dictTerminalError[i18nStore.locale]);
+
+  const loadingMessages = $derived([
+    dict.loading1,
+    dict.loading2,
+    dict.loading3,
+    dict.loading4,
+    dict.loading5,
+    dict.loading6,
+  ]);
   let loadingMessageIdx = $state(0);
   let loadingInterval: any;
 
@@ -121,7 +126,7 @@ ${errorEvent.output}`;
     try {
       await GenerateOllamaResponse(host, model, prompt);
     } catch (err: any) {
-      analysisResult = `[!] Error connecting to Ollama via Go bridge: ${err.message || err}\nMake sure Ollama is running at '${host}' and the '${model}' model is available.`;
+      analysisResult = `[!] ${dict.errorConnecting}: ${err.message || err}\n${dict.makeSure} '${host}' and the '${model}' model is available.`;
       doneHandler();
     }
   }
@@ -138,11 +143,11 @@ ${errorEvent.output}`;
 
       {#if !isAnalyzing && !analysisResult}
         <div class="error-body">
-          O processo retornou um erro ou código de saída maior que zero.
+          {dict.errorMessage}
         </div>
         <div class="error-actions">
           <button class="ansi-btn" onclick={analyzeWithOllama}>
-            <span class="prompt-arrow">❯</span> Analisar com IA (Ollama)
+            <span class="prompt-arrow">❯</span> {dict.analyzeBtn}
           </button>
         </div>
       {/if}

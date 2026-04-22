@@ -1,0 +1,28 @@
+export const dictTerminalError = {
+  "pt-BR": {
+    loading1: "Conectando ao modelo...",
+    loading2: "Analisando informações...",
+    loading3: "Depurando os erros...",
+    loading4: "Pensando sobre os erros da vida...",
+    loading5: "Decifrando os logs arcanos...",
+    loading6: "Consultando o oráculo do terminal...",
+    errorMessage: "O processo retornou um erro ou código de saída maior que zero.",
+    analyzeBtn: "Analisar com IA (Ollama)",
+    dismiss: "Ignorar",
+    errorConnecting: "Erro ao conectar ao Ollama via Go bridge",
+    makeSure: "Certifique-se de que o Ollama está rodando em"
+  },
+  en: {
+    loading1: "Connecting to model...",
+    loading2: "Analyzing information...",
+    loading3: "Debugging the errors...",
+    loading4: "Contemplating life's errors...",
+    loading5: "Deciphering arcane logs...",
+    loading6: "Consulting the terminal oracle...",
+    errorMessage: "The process returned an error or an exit code greater than zero.",
+    analyzeBtn: "Analyze with AI (Ollama)",
+    dismiss: "Dismiss",
+    errorConnecting: "Error connecting to Ollama via Go bridge",
+    makeSure: "Make sure Ollama is running at"
+  },
+};

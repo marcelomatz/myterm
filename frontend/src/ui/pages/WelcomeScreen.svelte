@@ -11,7 +11,11 @@
 
   let { updateVersion, updateUrl, onDismissUpdate }: Props = $props();
 
+  import { i18nStore } from "../../application/i18n.store.svelte";
+  import { dictWelcomeScreen } from "../../application/i18n/dictionaries/WelcomeScreen";
+
   let version = $state("...");
+  let dict = $derived(dictWelcomeScreen[i18nStore.locale]);
 
   onMount(async () => {
     try {
@@ -35,18 +39,18 @@
       `  myterm ${version} `,
       "",
       "  ┌──────────────────────────────────────────────────────────────┐",
-      "  │  QUICK START                                            │",
+      `  │  ${dict.quickStart.padEnd(55)} │`,
       "  │                                                         │",
-      "  │  Click  [+]              Open a new terminal tab        │",
-      "  │  Ctrl+Shift+T            New tab (same shell)           │",
-      "  │  Ctrl+Shift+D            Split horizontally             │",
-      "  │  Ctrl+Shift+E            Split vertically               │",
-      "  │  Ctrl+Shift+W            Close focused pane             │",
-      "  │  Ctrl+Tab                Cycle through tabs             │",
-      "  │  Ctrl+,                  Open settings                  │",
+      `  │  ${dict.clickNewTab.padEnd(55)} │`,
+      `  │  ${dict.keyNewTab.padEnd(55)} │`,
+      `  │  ${dict.keySplitH.padEnd(55)} │`,
+      `  │  ${dict.keySplitV.padEnd(55)} │`,
+      `  │  ${dict.keyClosePane.padEnd(55)} │`,
+      `  │  ${dict.keyCycleTabs.padEnd(55)} │`,
+      `  │  ${dict.keySettings.padEnd(55)} │`,
       "  └──────────────────────────────────────────────────────────────┘",
       "",
-      "  A terminal emulator for humans - Built by Marcelo Matz",
+      `  ${dict.subtitle}`,
       "",
     ].join("\n"),
   );
@@ -97,7 +101,7 @@
     {#if updateVersion && updateUrl}
       <div class="welcome-update" role="status">
         <span class="update-arrow">▲</span>
-        <span class="update-label">update available</span>
+        <span class="update-label">{dict.updateAvailable}</span>
         <button class="update-link" onclick={() => BrowserOpenURL(updateUrl!)}>
           {updateVersion}
         </button>
@@ -109,8 +113,7 @@
       </div>
     {/if}
     <div class="welcome-cta">
-      ▶ Click <strong>[+]</strong> or press <strong>Ctrl+Shift+T</strong> to open
-      a terminal
+      {@html dict.cta}
     </div>
   </div>
 </div>

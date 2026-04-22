@@ -6,6 +6,11 @@
     onCancel: () => void;
   }
   const { count, onCancel }: Props = $props();
+
+  import { i18nStore } from "../../application/i18n.store.svelte";
+  import { dictConfirmCloseModal } from "../../application/i18n/dictionaries/ConfirmCloseModal";
+
+  let dict = $derived(dictConfirmCloseModal[i18nStore.locale]);
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions -->
@@ -13,15 +18,14 @@
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div class="modal-box" onclick={(e) => e.stopPropagation()}>
-    <h3 class="modal-title">Fechar MyTerm?</h3>
+    <h3 class="modal-title">{dict.title}</h3>
     <p class="modal-body">
       {count}
-      {count === 1 ? "sessão aberta" : "sessões abertas"}. Os processos em
-      execução serão encerrados.
+      {count === 1 ? dict.openSession : dict.openSessions}. {dict.warning}
     </p>
     <div class="modal-actions">
-      <button class="btn-cancel" onclick={onCancel}>Cancelar</button>
-      <button class="btn-close" onclick={() => ForceQuit()}>Fechar</button>
+      <button class="btn-cancel" onclick={onCancel}>{dict.cancel}</button>
+      <button class="btn-close" onclick={() => ForceQuit()}>{dict.close}</button>
     </div>
   </div>
 </div>

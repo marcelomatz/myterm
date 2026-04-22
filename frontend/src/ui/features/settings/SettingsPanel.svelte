@@ -10,8 +10,17 @@
   } from "../../../domain/settings";
   import { applySettingsToAll } from "../../settings-apply";
   import type { PaneLeaf } from "../../../domain/types";
-  import { DetectShells, GetOllamaModels } from "../../../infrastructure/wails/backend";
+  import {
+    DetectShells,
+    GetOllamaModels,
+  } from "../../../infrastructure/wails/backend";
   import { shellMeta } from "../../../domain/shell-meta";
+
+  import { i18nStore } from "../../../application/i18n.store.svelte";
+  import { dictSettingsPanel } from "../../../application/i18n/dictionaries/SettingsPanel";
+  import type { Locale } from "../../../application/i18n.store.svelte";
+
+  let dict = $derived(dictSettingsPanel[i18nStore.locale]);
 
   interface Props {
     getLeaves: () => PaneLeaf[];
@@ -310,7 +319,7 @@
         shells = s;
       })
       .catch(() => {});
-      
+
     fetchOllamaModels();
   });
 
@@ -337,9 +346,24 @@
 
       <!-- APPEARANCE -->
       <div class="tset-section">
-        <div class="tset-section-hdr">── APPEARANCE</div>
+        <div class="tset-section-hdr">{dict.headerAppearance}</div>
         <div class="tset-row">
-          <span class="tset-key">font-family </span>
+          <span class="tset-key">{dict.language} </span>
+          <span class="tset-sep"> │ </span>
+          <span class="tset-val">
+            <select
+              class="tset-select"
+              value={i18nStore.locale}
+              onchange={(e) =>
+                i18nStore.setLocale((e.target as HTMLSelectElement).value as Locale)}
+            >
+              <option value="pt-BR">Português (Brasil)</option>
+              <option value="en">English</option>
+            </select>
+          </span>
+        </div>
+        <div class="tset-row">
+          <span class="tset-key">{dict.fontFamily} </span>
           <span class="tset-sep"> │ </span>
           <span class="tset-val">
             <select
@@ -358,7 +382,7 @@
           </span>
         </div>
         <div class="tset-row">
-          <span class="tset-key">font-size </span>
+          <span class="tset-key">{dict.fontSize} </span>
           <span class="tset-sep"> │ </span>
           <span class="tset-val">
             <span class="tset-range-wrap">
@@ -377,7 +401,7 @@
           </span>
         </div>
         <div class="tset-row">
-          <span class="tset-key">line-height </span>
+          <span class="tset-key">{dict.lineHeight} </span>
           <span class="tset-sep"> │ </span>
           <span class="tset-val">
             <span class="tset-range-wrap">
@@ -397,7 +421,7 @@
           </span>
         </div>
         <div class="tset-row">
-          <span class="tset-key">cursor-style </span>
+          <span class="tset-key">{dict.cursorStyle} </span>
           <span class="tset-sep"> │ </span>
           <span class="tset-val">
             <select
@@ -415,14 +439,14 @@
           </span>
         </div>
         <div class="tset-row">
-          <span class="tset-key">cursor-blink </span>
+          <span class="tset-key">{dict.cursorBlink} </span>
           <span class="tset-sep"> │ </span>
           <span class="tset-val">
             <button
               class="tset-toggle{draft.cursorBlink ? ' on' : ''}"
               onclick={() => onCursorBlink(!draft.cursorBlink)}
             >
-              {draft.cursorBlink ? "[ON ]" : "[OFF]"}
+              {draft.cursorBlink ? dict.on : dict.off}
             </button>
           </span>
         </div>
@@ -430,9 +454,9 @@
 
       <!-- COLORS -->
       <div class="tset-section">
-        <div class="tset-section-hdr">── COLORS</div>
+        <div class="tset-section-hdr">{dict.headerColors}</div>
         <div class="tset-row">
-          <span class="tset-key">color-theme </span>
+          <span class="tset-key">{dict.colorTheme} </span>
           <span class="tset-sep"> │ </span>
           <span class="tset-val">
             <select
@@ -453,10 +477,10 @@
 
       <!-- SHELL -->
       <div class="tset-section">
-        <div class="tset-section-hdr">── SHELL</div>
+        <div class="tset-section-hdr">{dict.headerShell}</div>
         {#if shells.length > 0}
           <div class="tset-row">
-            <span class="tset-key">default-shell </span>
+            <span class="tset-key">{dict.defaultShell} </span>
             <span class="tset-sep"> │ </span>
             <span class="tset-val">
               <select
@@ -465,7 +489,7 @@
                 onchange={(e) =>
                   onDefaultShell((e.target as HTMLSelectElement).value)}
               >
-                <option value="">（auto）</option>
+                <option value="">{dict.auto}</option>
                 {#each shells as sh}
                   <option value={sh} selected={draft.defaultShell === sh}
                     >{shellMeta(sh).label}</option
@@ -476,16 +500,16 @@
           </div>
         {:else}
           <div class="tset-note">
-            # shell detection unavailable — using auto
+            {dict.shellDetectionUnavailable}
           </div>
         {/if}
       </div>
 
       <!-- BEHAVIOR -->
       <div class="tset-section">
-        <div class="tset-section-hdr">── BEHAVIOR</div>
+        <div class="tset-section-hdr">{dict.headerBehavior}</div>
         <div class="tset-row">
-          <span class="tset-key">scrollback </span>
+          <span class="tset-key">{dict.scrollback} </span>
           <span class="tset-sep"> │ </span>
           <span class="tset-val">
             <span class="tset-range-wrap">
@@ -504,14 +528,14 @@
           </span>
         </div>
         <div class="tset-row">
-          <span class="tset-key">copy-on-select </span>
+          <span class="tset-key">{dict.copyOnSelect} </span>
           <span class="tset-sep"> │ </span>
           <span class="tset-val">
             <button
               class="tset-toggle{draft.copyOnSelect ? ' on' : ''}"
               onclick={() => onCopyOnSelect(!draft.copyOnSelect)}
             >
-              {draft.copyOnSelect ? "[ON ]" : "[OFF]"}
+              {draft.copyOnSelect ? dict.on : dict.off}
             </button>
           </span>
         </div>
@@ -519,14 +543,14 @@
 
       <!-- AI (Ollama) -->
       <div class="tset-section">
-        <div class="tset-section-hdr">── AI (OLLAMA)</div>
+        <div class="tset-section-hdr">{dict.headerAI}</div>
         <div class="tset-row">
-          <span class="tset-key">host </span>
+          <span class="tset-key">{dict.host} </span>
           <span class="tset-sep"> │ </span>
           <span class="tset-val">
-            <input 
-              type="text" 
-              class="tset-input" 
+            <input
+              type="text"
+              class="tset-input"
               value={draft.ollamaHost}
               onchange={(e) => {
                 onOllamaHost((e.target as HTMLInputElement).value);
@@ -536,11 +560,14 @@
           </span>
         </div>
         <div class="tset-row">
-          <span class="tset-key">model </span>
+          <span class="tset-key">{dict.model} </span>
           <span class="tset-sep"> │ </span>
-          <span class="tset-val" style="display: flex; gap: 4px; align-items: center">
+          <span
+            class="tset-val"
+            style="display: flex; gap: 4px; align-items: center"
+          >
             {#if isFetchingModels}
-               <span class="tset-dim">fetching...</span>
+              <span class="tset-dim">{dict.fetching}</span>
             {:else if ollamaModels.length > 0}
               <select
                 class="tset-select"
@@ -549,18 +576,25 @@
                   onOllamaModel((e.target as HTMLSelectElement).value)}
               >
                 {#each ollamaModels as m}
-                  <option value={m} selected={draft.ollamaModel === m}>{m}</option>
+                  <option value={m} selected={draft.ollamaModel === m}
+                    >{m}</option
+                  >
                 {/each}
               </select>
             {:else}
-              <input 
-                type="text" 
-                class="tset-input" 
+              <input
+                type="text"
+                class="tset-input"
                 value={draft.ollamaModel}
                 placeholder="Ex: llama3"
-                onchange={(e) => onOllamaModel((e.target as HTMLInputElement).value)}
+                onchange={(e) =>
+                  onOllamaModel((e.target as HTMLInputElement).value)}
               />
-              <button class="tset-btn-small" onclick={fetchOllamaModels} title="Retry fetch">↻</button>
+              <button
+                class="tset-btn-small"
+                onclick={fetchOllamaModels}
+                title="Retry fetch">↻</button
+              >
             {/if}
           </span>
         </div>
@@ -570,7 +604,7 @@
       <div class="tset-div">{"─".repeat(46)}</div>
       <div class="tset-footer">
         <button class="tset-reset-btn" onclick={resetToDefaults}
-          >[ reset to defaults ]</button
+          >{dict.resetToDefaults}</button
         >
       </div>
     </div>
@@ -579,7 +613,7 @@
   <!-- right: live preview -->
   <div class="tset-preview-pane">
     <div class="tset-preview-hdr">
-      ── LIVE PREVIEW ──────────────────────────────────────────
+      {dict.headerPreview} ──────────────────────────────────────────
     </div>
     <div
       class="tset-preview-term"
@@ -591,365 +625,436 @@
 </div>
 
 <style>
-/* ── Settings (retro terminal) ──────────────────────────────────────────── */
+  /* ── Settings (retro terminal) ──────────────────────────────────────────── */
 
-/* Tab bar: settings tab looks the same as others */
-.tab-item--settings { font-style: normal; }
+  /* ─── Settings split layout ─────────────────────────────────────────────── */
 
-/* ─── Settings split layout ─────────────────────────────────────────────── */
+  .tset-wrap {
+    /* Default theme vars (overridden immediately by JS from the active preset) */
+    --tset-bg: #0a0e0a;
+    --tset-fg: #39ff6e;
+    --tset-cursor: #39ff6e;
+    --tset-dim: #1d5c30;
+    --tset-cyan: #7affd4;
+    --tset-dimfg: #2f6b40;
+    --tset-accent: #90ff90;
+    /* ANSI palette (set by JS) */
+    --tset-red: #ef4444;
+    --tset-green: #10b981;
+    --tset-yellow: #eab308;
+    --tset-blue: #3b82f6;
+    --tset-magenta: #d946ef;
+    --tset-br-red: #f87171;
+    --tset-br-green: #34d399;
+    --tset-br-yellow: #facc15;
+    --tset-br-blue: #60a5fa;
+    --tset-br-magenta: #e879f9;
+    --tset-br-black: #3f3f46;
 
-.tset-wrap {
-  /* Default theme vars (overridden immediately by JS from the active preset) */
-  --tset-bg:           #0a0e0a;
-  --tset-fg:           #39ff6e;
-  --tset-cursor:       #39ff6e;
-  --tset-dim:          #1d5c30;
-  --tset-cyan:         #7affd4;
-  --tset-dimfg:        #2f6b40;
-  --tset-accent:       #90ff90;
-  /* ANSI palette (set by JS) */
-  --tset-red:          #ef4444;
-  --tset-green:        #10b981;
-  --tset-yellow:       #eab308;
-  --tset-blue:         #3b82f6;
-  --tset-magenta:      #d946ef;
-  --tset-br-red:       #f87171;
-  --tset-br-green:     #34d399;
-  --tset-br-yellow:    #facc15;
-  --tset-br-blue:      #60a5fa;
-  --tset-br-magenta:   #e879f9;
-  --tset-br-black:     #3f3f46;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    background: var(--tset-bg);
+  }
 
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-  overflow: hidden;
-  background: var(--tset-bg);
-}
+  /* Left side: scrollable settings controls */
+  .tset-left {
+    flex: 0 0 46%;
+    overflow-y: auto;
+    padding: 24px 20px;
+    border-right: 1px solid var(--tset-dim);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
 
-/* Left side: scrollable settings controls */
-.tset-left {
-  flex: 0 0 46%;
-  overflow-y: auto;
-  padding: 24px 20px;
-  border-right: 1px solid var(--tset-dim);
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-}
+  /* ── Minimal scrollbars (left panel + preview) ─────────────────────────── */
+  .tset-left::-webkit-scrollbar,
+  .tset-preview-term::-webkit-scrollbar {
+    width: 3px;
+  }
+  .tset-left::-webkit-scrollbar-track,
+  .tset-preview-term::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .tset-left::-webkit-scrollbar-thumb,
+  .tset-preview-term::-webkit-scrollbar-thumb {
+    background: var(--tset-dim);
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+  .tset-left::-webkit-scrollbar-thumb:hover,
+  .tset-preview-term::-webkit-scrollbar-thumb:hover {
+    background: var(--tset-dimfg);
+  }
+  /* Firefox */
+  .tset-left,
+  .tset-preview-term {
+    scrollbar-width: thin;
+    scrollbar-color: var(--tset-dim) transparent;
+  }
 
-/* ── Minimal scrollbars (left panel + preview) ─────────────────────────── */
-.tset-left::-webkit-scrollbar,
-.tset-preview-term::-webkit-scrollbar {
-  width: 3px;
-}
-.tset-left::-webkit-scrollbar-track,
-.tset-preview-term::-webkit-scrollbar-track {
-  background: transparent;
-}
-.tset-left::-webkit-scrollbar-thumb,
-.tset-preview-term::-webkit-scrollbar-thumb {
-  background: var(--tset-dim);
-  border-radius: 2px;
-  transition: background 0.2s;
-}
-.tset-left::-webkit-scrollbar-thumb:hover,
-.tset-preview-term::-webkit-scrollbar-thumb:hover {
-  background: var(--tset-dimfg);
-}
-/* Firefox */
-.tset-left,
-.tset-preview-term {
-  scrollbar-width: thin;
-  scrollbar-color: var(--tset-dim) transparent;
-}
+  /* The panel: inherits font from .tset-wrap (set via JS) */
+  .tset-panel {
+    width: 100%;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--tset-fg);
+    line-height: 1.7;
+    text-shadow: 0 0 6px color-mix(in srgb, var(--tset-fg) 45%, transparent);
+  }
 
+  /* "$ myterm --settings ▋" header line */
+  .tset-header {
+    padding: 4px 0 6px;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+  }
 
-/* The panel: inherits font from .tset-wrap (set via JS) */
-.tset-panel {
-  width: 100%;
-  font-family: inherit;
-  font-size: 13px;
-  color: var(--tset-fg);
-  line-height: 1.7;
-  text-shadow: 0 0 6px color-mix(in srgb, var(--tset-fg) 45%, transparent);
-}
+  .tset-prompt {
+    color: var(--tset-accent);
+  }
+  .tset-cmd {
+    color: var(--tset-fg);
+  }
+  .tset-arg {
+    color: var(--tset-cyan);
+  }
 
-/* "$ myterm --settings ▋" header line */
-.tset-header {
-  padding: 4px 0 6px;
-  font-size: 14px;
-  letter-spacing: 0.02em;
-}
+  /* Blinking cursor */
+  .tset-blink {
+    display: inline-block;
+    animation: tset-blink-anim 1.1s step-start infinite;
+    color: var(--tset-cursor);
+    opacity: 1;
+  }
+  @keyframes tset-blink-anim {
+    50% {
+      opacity: 0;
+    }
+  }
 
-.tset-prompt { color: var(--tset-accent); }
-.tset-cmd    { color: var(--tset-fg); }
-.tset-arg    { color: var(--tset-cyan); }
+  /* Horizontal rule: ─────── */
+  .tset-div {
+    color: var(--tset-dim);
+    letter-spacing: 0;
+    font-size: 13px;
+    user-select: none;
+    overflow: hidden;
+    white-space: nowrap;
+  }
 
-/* Blinking cursor */
-.tset-blink {
-  display: inline-block;
-  animation: tset-blink-anim 1.1s step-start infinite;
-  color: var(--tset-cursor);
-  opacity: 1;
-}
-@keyframes tset-blink-anim { 50% { opacity: 0; } }
+  /* Section header: ── APPEARANCE ─────────── */
+  .tset-section {
+    margin-top: 14px;
+  }
 
-/* Horizontal rule: ─────── */
-.tset-div {
-  color: var(--tset-dim);
-  letter-spacing: 0;
-  font-size: 13px;
-  user-select: none;
-  overflow: hidden;
-  white-space: nowrap;
-}
+  .tset-section-hdr {
+    color: var(--tset-cyan);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    text-shadow: 0 0 8px color-mix(in srgb, var(--tset-cyan) 50%, transparent);
+  }
 
-/* Section header: ── APPEARANCE ─────────── */
-.tset-section {
-  margin-top: 14px;
-}
+  /* Key │ value row */
+  .tset-row {
+    display: flex;
+    align-items: center;
+    padding: 1px 0;
+    gap: 0;
+  }
 
-.tset-section-hdr {
-  color: var(--tset-cyan);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 2px;
-  text-shadow: 0 0 8px color-mix(in srgb, var(--tset-cyan) 50%, transparent);
-}
+  .tset-key {
+    color: var(--tset-accent);
+    min-width: 16ch;
+    font-size: 13px;
+  }
 
-/* Key │ value row */
-.tset-row {
-  display: flex;
-  align-items: center;
-  padding: 1px 0;
-  gap: 0;
-}
+  .tset-sep {
+    color: var(--tset-dim);
+    margin: 0 4px;
+    user-select: none;
+  }
 
-.tset-key {
-  color: var(--tset-accent);
-  min-width: 16ch;
-  font-size: 13px;
-}
+  .tset-val {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
 
-.tset-sep {
-  color: var(--tset-dim);
-  margin: 0 4px;
-  user-select: none;
-}
+  /* Inline note (shell detection unavailable) */
+  .tset-note {
+    color: var(--tset-dimfg);
+    font-size: 12px;
+    font-style: italic;
+    padding: 2px 0;
+  }
 
-.tset-val {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
+  /* Select: no native chrome, themed outline */
+  .tset-select {
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--tset-dim);
+    color: var(--tset-fg);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    padding: 0 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    text-shadow: 0 0 4px color-mix(in srgb, var(--tset-fg) 35%, transparent);
+    max-width: 240px;
+  }
 
-/* Inline note (shell detection unavailable) */
-.tset-note {
-  color: var(--tset-dimfg);
-  font-size: 12px;
-  font-style: italic;
-  padding: 2px 0;
-}
+  .tset-select:focus {
+    border-bottom-color: var(--tset-fg);
+  }
 
-/* Select: no native chrome, themed outline */
-.tset-select {
-  background: transparent;
-  border: none;
-  border-bottom: 1px dashed var(--tset-dim);
-  color: var(--tset-fg);
-  font-family: inherit;
-  font-size: 13px;
-  outline: none;
-  cursor: pointer;
-  padding: 0 4px;
-  appearance: none;
-  -webkit-appearance: none;
-  text-shadow: 0 0 4px color-mix(in srgb, var(--tset-fg) 35%, transparent);
-  max-width: 240px;
-}
+  .tset-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--tset-dim);
+    color: var(--tset-fg);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    padding: 0 4px;
+    text-shadow: 0 0 4px color-mix(in srgb, var(--tset-fg) 35%, transparent);
+    max-width: 240px;
+  }
+  .tset-input:focus {
+    border-bottom-color: var(--tset-fg);
+  }
 
-.tset-select:focus { border-bottom-color: var(--tset-fg); }
+  .tset-btn-small {
+    background: transparent;
+    border: 1px solid var(--tset-dim);
+    color: var(--tset-dimfg);
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0 4px;
+    border-radius: 2px;
+    transition:
+      color 0.15s,
+      border-color 0.15s;
+  }
+  .tset-btn-small:hover {
+    color: var(--tset-fg);
+    border-color: var(--tset-fg);
+  }
 
-.tset-input {
-  background: transparent;
-  border: none;
-  border-bottom: 1px dashed var(--tset-dim);
-  color: var(--tset-fg);
-  font-family: inherit;
-  font-size: 13px;
-  outline: none;
-  padding: 0 4px;
-  text-shadow: 0 0 4px color-mix(in srgb, var(--tset-fg) 35%, transparent);
-  max-width: 240px;
-}
-.tset-input:focus { border-bottom-color: var(--tset-fg); }
+  /* For <option> on Windows/Linux we can't do much, override dark bg */
+  .tset-select option {
+    background: var(--tset-bg);
+    color: var(--tset-fg);
+  }
 
-.tset-btn-small {
-  background: transparent;
-  border: 1px solid var(--tset-dim);
-  color: var(--tset-dimfg);
-  font-family: inherit;
-  font-size: 12px;
-  cursor: pointer;
-  padding: 0 4px;
-  border-radius: 2px;
-  transition: color 0.15s, border-color 0.15s;
-}
-.tset-btn-small:hover { color: var(--tset-fg); border-color: var(--tset-fg); }
+  /* Range slider: themed accent */
+  .tset-range-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-/* For <option> on Windows/Linux we can't do much, override dark bg */
-.tset-select option {
-  background: var(--tset-bg);
-  color: var(--tset-fg);
-}
+  .tset-range {
+    width: 130px;
+    accent-color: var(--tset-fg);
+    cursor: pointer;
+    background: transparent;
+  }
 
-/* Range slider: themed accent */
-.tset-range-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+  .tset-range-badge {
+    color: var(--tset-cyan);
+    min-width: 30px;
+    font-size: 13px;
+    text-align: right;
+  }
 
-.tset-range {
-  width: 130px;
-  accent-color: var(--tset-fg);
-  cursor: pointer;
-  background: transparent;
-}
+  /* Toggle: ASCII [ON ] / [OFF] button */
+  .tset-toggle {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+    color: var(--tset-dimfg);
+    text-shadow: none;
+    letter-spacing: 0.05em;
+    transition: color 0.1s;
+  }
 
-.tset-range-badge {
-  color: var(--tset-cyan);
-  min-width: 30px;
-  font-size: 13px;
-  text-align: right;
-}
+  .tset-toggle.on {
+    color: var(--tset-fg);
+    text-shadow: 0 0 6px color-mix(in srgb, var(--tset-fg) 50%, transparent);
+  }
 
-/* Toggle: ASCII [ON ] / [OFF] button */
-.tset-toggle {
-  background: none;
-  border: none;
-  font-family: inherit;
-  font-size: 13px;
-  cursor: pointer;
-  padding: 0;
-  color: var(--tset-dimfg);
-  text-shadow: none;
-  letter-spacing: 0.05em;
-  transition: color 0.1s;
-}
+  .tset-toggle:hover {
+    color: var(--tset-accent);
+  }
 
-.tset-toggle.on {
-  color: var(--tset-fg);
-  text-shadow: 0 0 6px color-mix(in srgb, var(--tset-fg) 50%, transparent);
-}
+  /* Footer */
+  .tset-footer {
+    padding: 10px 0 6px;
+    display: flex;
+    justify-content: flex-start;
+  }
 
-.tset-toggle:hover { color: var(--tset-accent); }
+  .tset-reset-btn {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--tset-dimfg);
+    cursor: pointer;
+    padding: 0;
+    letter-spacing: 0.03em;
+    transition:
+      color 0.15s,
+      text-shadow 0.15s;
+  }
 
-/* Footer */
-.tset-footer {
-  padding: 10px 0 6px;
-  display: flex;
-  justify-content: flex-start;
-}
+  .tset-reset-btn:hover {
+    color: #ff6b6b;
+    text-shadow: 0 0 8px rgba(255, 80, 80, 0.5);
+  }
 
-.tset-reset-btn {
-  background: none;
-  border: none;
-  font-family: inherit;
-  font-size: 13px;
-  color: var(--tset-dimfg);
-  cursor: pointer;
-  padding: 0;
-  letter-spacing: 0.03em;
-  transition: color 0.15s, text-shadow 0.15s;
-}
+  /* --- Live terminal preview pane ------------------------------------------- */
 
-.tset-reset-btn:hover {
-  color: #ff6b6b;
-  text-shadow: 0 0 8px rgba(255,80,80,0.5);
-}
+  .tset-preview-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+  }
 
-/* --- Live terminal preview pane ------------------------------------------- */
+  .tset-preview-hdr {
+    padding: 8px 16px 7px;
+    border-bottom: 1px solid var(--tset-dim);
+    color: var(--tset-cyan);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    user-select: none;
+    text-shadow: 0 0 8px color-mix(in srgb, var(--tset-cyan) 50%, transparent);
+  }
 
-.tset-preview-pane {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-width: 0;
-}
+  .tset-preview-term {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 12px 18px 20px;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--tset-fg);
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.09) 2px,
+      rgba(0, 0, 0, 0.09) 4px
+    );
+  }
 
-.tset-preview-hdr {
-  padding: 8px 16px 7px;
-  border-bottom: 1px solid var(--tset-dim);
-  color: var(--tset-cyan);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  flex-shrink: 0;
-  user-select: none;
-  text-shadow: 0 0 8px color-mix(in srgb, var(--tset-cyan) 50%, transparent);
-}
+  :global(.pv-line) {
+    display: block;
+    white-space: pre;
+    min-height: 1em;
+    word-break: break-all;
+  }
 
-.tset-preview-term {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 12px 18px 20px;
-  font-family: inherit;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--tset-fg);
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0px,
-    transparent 2px,
-    rgba(0,0,0,0.09) 2px,
-    rgba(0,0,0,0.09) 4px
-  );
-}
-
-:global(.pv-line) {
-  display: block;
-  white-space: pre;
-  min-height: 1em;
-  word-break: break-all;
-}
-
-/* Preview ANSI color spans */
-:global(.pv-user)    { color: var(--tset-br-green); }
-:global(.pv-at)      { color: var(--tset-dimfg); }
-:global(.pv-host)    { color: var(--tset-cyan); }
-:global(.pv-sep)     { color: var(--tset-dimfg); }
-:global(.pv-path)    { color: var(--tset-br-blue, var(--tset-blue)); font-weight: bold; }
-:global(.pv-dollar)  { color: var(--tset-accent); }
-:global(.pv-cmd)     { color: var(--tset-fg); font-weight: bold; }
-:global(.pv-arg)     { color: var(--tset-yellow); }
-:global(.pv-str)     { color: var(--tset-br-yellow, var(--tset-yellow)); }
-:global(.pv-kw)      { color: var(--tset-magenta); }
-:global(.pv-cmt)     { color: var(--tset-dimfg); font-style: italic; }
-:global(.pv-num)     { color: var(--tset-cyan); }
-:global(.pv-red)     { color: var(--tset-br-red, var(--tset-red)); }
-:global(.pv-green)   { color: var(--tset-br-green, var(--tset-green)); }
-:global(.pv-yellow)  { color: var(--tset-yellow); }
-:global(.pv-blue)    { color: var(--tset-blue); }
-:global(.pv-magenta) { color: var(--tset-magenta); }
-:global(.pv-cyan)    { color: var(--tset-cyan); }
-:global(.pv-dim)     { color: var(--tset-br-black, var(--tset-dimfg)); }
-:global(.pv-ok)      { color: var(--tset-br-green, var(--tset-green)); font-weight: bold; }
-:global(.pv-fail)    { color: var(--tset-br-red, var(--tset-red)); font-weight: bold; }
-:global(.pv-pass)    { color: var(--tset-br-green, var(--tset-green)); }
-:global(.pv-diff-a)  { color: var(--tset-br-green, var(--tset-green)); }
-:global(.pv-diff-d)  { color: var(--tset-br-red, var(--tset-red)); }
-:global(.pv-cursor)  {
-  display: inline-block;
-  background: var(--tset-cursor);
-  color: var(--tset-bg);
-  animation: tset-blink-anim 1.1s step-start infinite;
-  min-width: 0.6em;
-}
+  /* Preview ANSI color spans */
+  :global(.pv-user) {
+    color: var(--tset-br-green);
+  }
+  :global(.pv-at) {
+    color: var(--tset-dimfg);
+  }
+  :global(.pv-host) {
+    color: var(--tset-cyan);
+  }
+  :global(.pv-sep) {
+    color: var(--tset-dimfg);
+  }
+  :global(.pv-path) {
+    color: var(--tset-br-blue, var(--tset-blue));
+    font-weight: bold;
+  }
+  :global(.pv-dollar) {
+    color: var(--tset-accent);
+  }
+  :global(.pv-cmd) {
+    color: var(--tset-fg);
+    font-weight: bold;
+  }
+  :global(.pv-arg) {
+    color: var(--tset-yellow);
+  }
+  :global(.pv-str) {
+    color: var(--tset-br-yellow, var(--tset-yellow));
+  }
+  :global(.pv-kw) {
+    color: var(--tset-magenta);
+  }
+  :global(.pv-cmt) {
+    color: var(--tset-dimfg);
+    font-style: italic;
+  }
+  :global(.pv-num) {
+    color: var(--tset-cyan);
+  }
+  :global(.pv-red) {
+    color: var(--tset-br-red, var(--tset-red));
+  }
+  :global(.pv-green) {
+    color: var(--tset-br-green, var(--tset-green));
+  }
+  :global(.pv-yellow) {
+    color: var(--tset-yellow);
+  }
+  :global(.pv-blue) {
+    color: var(--tset-blue);
+  }
+  :global(.pv-magenta) {
+    color: var(--tset-magenta);
+  }
+  :global(.pv-cyan) {
+    color: var(--tset-cyan);
+  }
+  :global(.pv-dim) {
+    color: var(--tset-br-black, var(--tset-dimfg));
+  }
+  :global(.pv-ok) {
+    color: var(--tset-br-green, var(--tset-green));
+    font-weight: bold;
+  }
+  :global(.pv-fail) {
+    color: var(--tset-br-red, var(--tset-red));
+    font-weight: bold;
+  }
+  :global(.pv-pass) {
+    color: var(--tset-br-green, var(--tset-green));
+  }
+  :global(.pv-diff-a) {
+    color: var(--tset-br-green, var(--tset-green));
+  }
+  :global(.pv-diff-d) {
+    color: var(--tset-br-red, var(--tset-red));
+  }
+  :global(.pv-cursor) {
+    display: inline-block;
+    background: var(--tset-cursor);
+    color: var(--tset-bg);
+    animation: tset-blink-anim 1.1s step-start infinite;
+    min-width: 0.6em;
+  }
 </style>
-

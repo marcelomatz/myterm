@@ -20,6 +20,7 @@
   import { ForceQuit, CheckForUpdates } from './infrastructure/wails/backend';
   import type { UpdateInfo } from './infrastructure/wails/backend';
   import UpdateToast from './ui/components/UpdateToast.svelte';
+  import { i18nStore } from './application/i18n.store.svelte';
 
   const SETTINGS_TAB_ID = '__settings__';
 
@@ -363,6 +364,9 @@
 
   // ── Mount ──────────────────────────────────────────────────────────────────
   onMount(() => {
+    // Initialize i18n locale
+    i18nStore.init();
+
     // Single delegated listener for session-exit events bubbling from any leaf
     // container. leafElMap tracks the current container per sessionId — the
     // event always bubbles from whichever slot is live in workspaceEl.

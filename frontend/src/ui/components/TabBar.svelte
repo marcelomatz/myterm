@@ -13,6 +13,11 @@
   }
   const { tabs, activeTabId, onActivate, onClose, onNewTab, onRename, onSettings }: Props = $props();
 
+  import { i18nStore } from "../../application/i18n.store.svelte";
+  import { dictTabBar } from "../../application/i18n/dictionaries/TabBar";
+
+  let dict = $derived(dictTabBar[i18nStore.locale]);
+
   const SETTINGS_TAB_ID = '__settings__';
 
   // Rename state
@@ -78,15 +83,15 @@
 
       <button
         class="tab-close"
-        title="Close tab"
+        title={dict.closeTab}
         onclick={(e) => { e.stopPropagation(); onClose(tab.id); }}
       >×</button>
     </div>
   {/each}
 
-  <button id="new-tab-btn" title="New tab (Ctrl+Shift+T)" onclick={onNewTab}>+</button>
+  <button id="new-tab-btn" title="{dict.newTab} (Ctrl+Shift+T)" onclick={onNewTab}>+</button>
   
   <div style="flex: 1;"></div>
   
-  <button id="settings-btn" style="margin-right: 12px;" title="Settings (Ctrl+,)" onclick={onSettings}>⚙</button>
+  <button id="settings-btn" style="margin-right: 12px;" title="{dict.settings} (Ctrl+,)" onclick={onSettings}>⚙</button>
 </div>
