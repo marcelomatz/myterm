@@ -153,6 +153,7 @@ export async function createSession(
         }
         return false; // Prevent xterm from sending \x16 and double-processing
       }
+      const isOurShortcut =
         (ev.shiftKey && 'WwDdEeTt'.includes(ev.key)) ||
         ev.key === ',' ||
         ev.key === 'Tab';
