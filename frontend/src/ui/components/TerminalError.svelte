@@ -60,10 +60,23 @@
         : `'${s.fontFamily}', 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace`;
   });
 
+  function startAutoClose() {
+    cancelAutoClose();
+    autoCloseTimer = setTimeout(() => {
+      dismiss();
+    }, 5000);
+  }
+
   function cancelAutoClose() {
     if (autoCloseTimer) {
       clearTimeout(autoCloseTimer);
       autoCloseTimer = null;
+    }
+  }
+
+  function handleMouseLeave() {
+    if (!isAnalyzing && !analysisResult) {
+      startAutoClose();
     }
   }
 
@@ -77,10 +90,7 @@
       loadingInterval = null;
     }
     
-    cancelAutoClose();
-    autoCloseTimer = setTimeout(() => {
-      dismiss();
-    }, 5000);
+    startAutoClose();
   }
 
   onMount(() => {
@@ -150,7 +160,11 @@ ${errorEvent.output}`;
 {#if errorEvent}
   <div class="terminal-error-wrapper" style="--font: {fontFamily}">
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div class="terminal-error-box" onmouseenter={cancelAutoClose}>
+    <div 
+      class="terminal-error-box" 
+      onmouseenter={cancelAutoClose}
+      onmouseleave={handleMouseLeave}
+    >
       <div class="error-header">
         <span class="error-badge">✖ ERROR</span>
         <span class="command-text">{errorEvent.command}</span>
