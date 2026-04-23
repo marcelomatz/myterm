@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"strings"
 	"sync/atomic"
 
 	"github.com/aymanbagabas/go-pty"
@@ -32,7 +34,7 @@ func NewTerminal() *Terminal {
 // StartWithID launches the shell inside a PTY and streams its output to the
 // frontend via the scoped "terminal-output:{id}" event.
 // If shell is empty the best available shell is used.
-func (t *Terminal) StartWithID(ctx context.Context, id, shell string) error {
+func (t *Terminal) StartWithID(ctx context.Context, id, shell string, cwd string) error {
 	t.ctx = ctx
 
 	ptm, err := pty.New()
@@ -47,6 +49,19 @@ func (t *Terminal) StartWithID(ctx context.Context, id, shell string) error {
 	args := ShellArgs(shell)
 	cmd := ptm.Command(shell, args...)
 	cmd.Env = append(os.Environ(), "TERM=xterm-256color")
+
+	if strings.HasPrefix(cwd, "~") {
+		if home, err := os.UserHomeDir(); err == nil {
+			if cwd == "~" {
+				cwd = home
+			} else if len(cwd) > 1 && (cwd[1] == '/' || cwd[1] == '\\') {
+				cwd = filepath.Join(home, cwd[2:])
+			}
+		}
+	}
+	if cwd != "" {
+		cmd.Dir = cwd
+	}
 
 	if err := cmd.Start(); err != nil {
 		ptm.Close()

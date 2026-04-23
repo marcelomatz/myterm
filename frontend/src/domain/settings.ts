@@ -106,6 +106,7 @@ export interface AppSettings {
   scrollback: number;     // 500–10000
   // Shell default
   defaultShell: string;   // empty = auto-detect
+  startupPath: string;    // default start path
   // Clipboard
   copyOnSelect: boolean;  // copy to clipboard on text selection
   // AI Integration
@@ -124,6 +125,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   colorPresetId: 'cyber-noir',
   scrollback: 1000,
   defaultShell: '',
+  startupPath: '~',
   copyOnSelect: false,
   ollamaHost: 'http://127.0.0.1:11434',
   ollamaModel: 'llama3',

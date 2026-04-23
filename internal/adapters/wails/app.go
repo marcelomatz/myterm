@@ -164,7 +164,8 @@ func (a *App) DetectShells() []string {
 // shell must be one of the binaries returned by DetectShells() — any other
 // value is rejected to prevent arbitrary binary execution via the RPC bridge.
 // Pass an empty string to auto-detect the best shell.
-func (a *App) NewSession(shell string) string {
+// cwd is the directory the shell should start in.
+func (a *App) NewSession(shell string, cwd string) string {
 	if shell != "" {
 		allowed := pty.DetectShells()
 		if !contains(allowed, shell) {
@@ -172,7 +173,7 @@ func (a *App) NewSession(shell string) string {
 			return ""
 		}
 	}
-	id, err := a.sessions.NewSession(shell)
+	id, err := a.sessions.NewSession(shell, cwd)
 	if err != nil {
 		log.Printf("NewSession error: %v", err)
 		return ""

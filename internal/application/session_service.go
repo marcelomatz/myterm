@@ -34,11 +34,11 @@ func (s *SessionManager) Start(ctx context.Context) {
 
 // NewSession launches a new shell in a PTY and starts streaming its output.
 // shell may be empty to auto-detect the best shell. Returns the session ID.
-func (s *SessionManager) NewSession(shell string) (string, error) {
+func (s *SessionManager) NewSession(shell string, cwd string) (string, error) {
 	id := uuid.NewString()
 
 	t := pty.NewTerminal()
-	if err := t.StartWithID(s.ctx, id, shell); err != nil {
+	if err := t.StartWithID(s.ctx, id, shell, cwd); err != nil {
 		return "", fmt.Errorf("NewSession: %w", err)
 	}
 

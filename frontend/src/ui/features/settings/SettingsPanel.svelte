@@ -134,6 +134,11 @@
       d.defaultShell = v;
     });
   }
+  function onStartupPath(v: string) {
+    apply((d) => {
+      d.startupPath = v;
+    });
+  }
   function onScrollback(v: number) {
     apply((d) => {
       d.scrollback = v;
@@ -503,6 +508,20 @@
             {dict.shellDetectionUnavailable}
           </div>
         {/if}
+      </div>
+      <div class="tset-row">
+        <span class="tset-key">{dict.startupPath} </span>
+        <span class="tset-sep"> │ </span>
+        <span class="tset-val">
+          <input
+            type="text"
+            class="tset-input"
+            value={draft.startupPath}
+            onchange={(e) =>
+              onStartupPath((e.target as HTMLInputElement).value)}
+            placeholder="~"
+          />
+        </span>
       </div>
 
       <!-- BEHAVIOR -->

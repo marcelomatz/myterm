@@ -79,8 +79,9 @@ export async function createSession(
 ): Promise<PaneLeaf> {
   const s = getSettings();
   const effectiveShell = shell || s.defaultShell || '';
+  const startupPath = s.startupPath || '~';
 
-  const sessionId = await NewSession(effectiveShell);
+  const sessionId = await NewSession(effectiveShell, startupPath);
   if (!sessionId) throw new Error('NewSession returned empty id');
 
   const preset = getPreset(s.colorPresetId);
