@@ -83,7 +83,7 @@ func (a *App) CheckForUpdates() UpdateInfo {
 	return UpdateInfo{
 		HasUpdate: latest != "" && latest != current && current != "dev",
 		Version:   release.TagName,
-		URL:       release.HTMLURL,
+		URL:       "https://myterm.marcelomatz.com.br",
 	}
 }
 
