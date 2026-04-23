@@ -7,6 +7,33 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ---
 
+## [0.5.0] — 2026-04-23
+
+### ✨ Funcionalidades
+- **Arquitetura Open Core**: implementação da fundação para suporte isolado de funcionalidades da versão Enterprise.
+- **Configuração de Diretório Inicial**: opção para o usuário definir o diretório inicial (cwd) padrão de novas sessões.
+- **Suporte i18n**: refatoração da arquitetura e suporte à internacionalização em todos os componentes da interface.
+- **Atalhos Inteligentes**: Ajustes em alguns atalhos de teclado que estavam conflitando com outros recursos.
+- **Popup de IA**: Integração inicial (em desenvolvimento) do assistente de IA para ajuda com erros no terminal (Prompt Assist) via Ollama.
+- **Clean Architecture**: profunda refatoração tanto no backend (Go) quanto no frontend (Svelte) garantindo desacoplamento.
+
+### 🐛 Correções de Bugs
+- Prevenção de vazamento (leaks) de memória em ações que ficavam rodando no terminal.
+- Ajustes finos no atalho `Ctrl+Tab` e gerenciamento de telas divididas.
+- Correção no redimensionamento automático do layout via `ResizeObserver` ao alterar o tamanho da janela.
+- Auto-fechamento do modal de erro após 5 segundos se ignorado.
+- Escopo do CSS da pré-visualização ao vivo corrigido para não interferir na aplicação global.
+
+### 🛠️ Manutenção
+- Renomeação oficial e consistente do app para "myTerm".
+- Atualização geral das dependências do frontend (Svelte 5, xterm.js, etc).
+
+---
+
+## [0.4.0] — Não lançada (Consolidada na 0.5.0)
+
+---
+
 ## [0.3.1] — 2026-03-24
 
 ### 🔧 Corrigido
@@ -61,6 +88,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Tema escuro com accent amarelo (#ffd700)
 - Build para **Windows** (`.exe` portátil)
 
+[0.5.0]: https://github.com/marcelomatz/myterm/compare/v0.3.1...v0.5.0
 [0.3.1]: https://github.com/marcelomatz/myterm/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/marcelomatz/myterm/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/marcelomatz/myterm/compare/v0.1.0...v0.2.0
