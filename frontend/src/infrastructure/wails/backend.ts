@@ -11,15 +11,24 @@ export {
   CloseSession,
   Write,
   Resize,
+} from '../../../wailsjs/go/wails/App';
+
+export {
   AnalyzeDirectory,
   ListDirectory,
-} from '../../../wailsjs/go/wails/App';
+  ReadFile,
+  WriteFile,
+} from '@bindings/enterprise/FileService';
+
+export {
+  GetGitStatus,
+} from '@bindings/enterprise/GitService';
 
 // ForceQuit and CheckForUpdates are bound Go methods accessed via the Wails
 // global so we don't depend on the generated .d.ts (only appears after the
 // first compile that includes the new method).
 
-export type { application } from '../../../wailsjs/go/models';
+export type { application, enterprise } from '../../../wailsjs/go/models';
 
 export function ForceQuit(): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

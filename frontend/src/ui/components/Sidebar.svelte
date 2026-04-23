@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { ListDirectory, Write } from "../../infrastructure/wails/backend";
-  import type { application } from "../../infrastructure/wails/backend";
-  import FileTreeNode from "./FileTreeNode.svelte";
+  import { fly } from "svelte/transition";
+  import { ListDirectory, Write, GetGitStatus } from "../../infrastructure/wails/backend";
+  import type { pro } from "../../infrastructure/wails/backend";
+  import FileTreeNode from "@enterprise/components/FileTreeNode.svelte";
+  import GitTree from "@enterprise/components/GitTree.svelte";
   import { getSettings } from "../../domain/settings";
   import type { PaneLeaf } from "../../domain/types";
 
@@ -14,19 +16,54 @@
 
   const { rootPath, onClose, activeLeaf }: Props = $props();
 
-  let nodes = $state<application.FileNode[]>([]);
+  let nodes = $state<pro.FileNode[]>([]);
   let loading = $state(false);
   let error = $state("");
 
+  let gitStatus = $state<pro.GitStatusResult | null>(null);
+
   // Resize state
-  let width = $state(260); // default width
+  let width = $state(200); // default width matches min width
   let isDragging = $state(false);
+  
+  let gitRatio = $state(20); // 20% for source control
+  let isHDragging = $state(false);
+
+  let commandListener: (e: Event) => void;
+  let editorSavedListener: (e: Event) => void;
 
   $effect(() => {
     if (rootPath) {
       loadRoot();
+      loadGitStatus();
     }
   });
+
+  onMount(() => {
+    commandListener = () => {
+      if (rootPath) loadGitStatus();
+    };
+    editorSavedListener = () => {
+      if (rootPath) loadGitStatus();
+    };
+
+    window.addEventListener('myterm:command-finish', commandListener);
+    window.addEventListener('myterm:editor-saved', editorSavedListener);
+
+    return () => {
+      window.removeEventListener('myterm:command-finish', commandListener);
+      window.removeEventListener('myterm:editor-saved', editorSavedListener);
+    };
+  });
+
+  async function loadGitStatus() {
+    try {
+      gitStatus = await GetGitStatus(rootPath);
+    } catch (err) {
+      console.warn("Failed to get git status:", err);
+      gitStatus = null;
+    }
+  }
 
   async function loadRoot() {
     loading = true;
@@ -34,7 +71,6 @@
     console.log("[Sidebar] Loading directory:", rootPath);
     try {
       const result = await ListDirectory(rootPath);
-      console.log("[Sidebar] ListDirectory result:", result);
       nodes = (result || []).sort((a, b) => {
         if (a.isDir && !b.isDir) return -1;
         if (!a.isDir && b.isDir) return 1;
@@ -49,16 +85,8 @@
   }
 
   function handleFileClick(path: string) {
-    const settings = getSettings();
-    const cmd = settings.defaultEditorCmd || "vim";
-    const leaf = activeLeaf();
-    if (leaf) {
-      // Convert backslashes to forward slashes to prevent shell escape sequences stripping them
-      const normalizedPath = path.replace(/\\/g, "/");
-      // Escape path if it contains spaces
-      const safePath = normalizedPath.includes(" ") ? `"${normalizedPath}"` : normalizedPath;
-      Write(leaf.sessionId, `${cmd} ${safePath}\r`);
-    }
+    const normalizedPath = path.replace(/\\/g, "/");
+    window.dispatchEvent(new CustomEvent('myterm:open-editor', { detail: { filePath: normalizedPath } }));
   }
 
   // --- Resizing logic ---
@@ -67,27 +95,41 @@
     e.preventDefault();
   }
 
+  function onHPointerDown(e: PointerEvent) {
+    isHDragging = true;
+    e.preventDefault();
+  }
+
   function onPointerMove(e: PointerEvent) {
-    if (!isDragging) return;
-    // ClientX represents the mouse position. The sidebar is on the left.
-    // So new width is roughly e.clientX
-    let newWidth = e.clientX;
-    if (newWidth < 200) newWidth = 200; // min width
-    if (newWidth > 600) newWidth = 600; // max width
-    width = newWidth;
+    if (isDragging) {
+      let newWidth = e.clientX;
+      if (newWidth < 200) newWidth = 200; // min width
+      if (newWidth > 600) newWidth = 600; // max width
+      width = newWidth;
+    }
+    if (isHDragging) {
+      // Calculate gitRatio. Sidebar height is window.innerHeight.
+      // gitRatio = percentage from bottom
+      let newRatio = ((window.innerHeight - e.clientY) / window.innerHeight) * 100;
+      if (newRatio < 10) newRatio = 10;
+      if (newRatio > 90) newRatio = 90;
+      gitRatio = newRatio;
+    }
   }
 
   function onPointerUp() {
     isDragging = false;
+    isHDragging = false;
   }
 </script>
 
 <svelte:window 
   onpointermove={onPointerMove} 
   onpointerup={onPointerUp} 
+  onpointercancel={onPointerUp} 
 />
 
-<div class="sidebar-container" style="width: {width}px">
+<div class="sidebar-container" style="width: {width}px" transition:fly={{ x: -200, duration: 250, opacity: 0 }}>
   <div class="sidebar-header">
     <div class="title">EXPLORER</div>
     <button class="close-btn" onclick={onClose} aria-label="Close Sidebar">
@@ -95,7 +137,7 @@
     </button>
   </div>
 
-  <div class="sidebar-content">
+  <div class="sidebar-content" style="flex: {gitStatus?.isGitRepo ? 100 - gitRatio : 100}">
     {#if loading}
       <div class="message">Loading...</div>
     {:else if error}
@@ -104,10 +146,27 @@
       <div class="message">Empty directory</div>
     {:else}
       {#each nodes as node}
-        <FileTreeNode {node} depth={0} onFileClick={handleFileClick} />
+        <FileTreeNode 
+          {node} 
+          depth={0} 
+          onFileClick={handleFileClick} 
+          activeFilePath={activeLeaf()?.kind === 'editor' ? activeLeaf()?.activeFilePath : undefined}
+        />
       {/each}
     {/if}
   </div>
+
+  {#if gitStatus?.isGitRepo}
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <div class="sidebar-h-resizer" role="separator" aria-orientation="horizontal" onpointerdown={onHPointerDown}></div>
+    <div class="sidebar-header">
+      <div class="title">SOURCE CONTROL</div>
+    </div>
+    <div class="sidebar-content git-section" style="flex: {gitRatio}">
+      <GitTree files={gitStatus.files} {rootPath} onFileClick={handleFileClick} />
+    </div>
+  {/if}
 
   <!-- Drag handle -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -120,7 +179,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: rgba(15, 15, 15, 0.6);
+    background: color-mix(in srgb, var(--tset-bg) 80%, rgba(15, 15, 15, 0.6));
     backdrop-filter: blur(10px);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
     position: relative;
@@ -131,8 +190,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 16px;
+    height: 36px;
+    padding: 0 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    box-sizing: border-box;
   }
 
   .title {
@@ -165,7 +226,6 @@
   }
 
   .sidebar-content {
-    flex: 1;
     overflow-y: auto;
     padding: 8px 0;
   }
@@ -205,5 +265,29 @@
   
   .resizer:hover {
     background: rgba(255, 255, 255, 0.1);
+  }
+
+  .sidebar-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.05);
+    margin: 4px 0;
+  }
+
+  .sidebar-h-resizer {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    margin: 0;
+    cursor: row-resize;
+    z-index: 10;
+    flex-shrink: 0;
+    transition: background 0.2s ease;
+  }
+  .sidebar-h-resizer:hover, .sidebar-h-resizer:active {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .git-section {
+    min-height: 50px;
+    border-top: none;
   }
 </style>

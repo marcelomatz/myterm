@@ -5,8 +5,8 @@ import type { CanvasAddon } from '@xterm/addon-canvas';
 
 // ─── Pane tree ───────────────────────────────────────────────────────────────
 
-export interface PaneLeaf {
-  kind: 'leaf';
+export interface TerminalLeaf {
+  kind: 'terminal';
   sessionId: string;
   shell: string;          // effective shell executable used for this session
   term: Terminal;
@@ -16,6 +16,21 @@ export interface PaneLeaf {
   // NOTE: el (DOM container) is NOT stored here — it lives in pane.ts:leafElMap
   // to keep it out of Svelte's reactive $state tree and avoid infinite $effect loops.
 }
+
+export interface EditorFile {
+  filePath: string;
+  content: string;
+  isDirty: boolean;
+}
+
+export interface ExtensionLeaf {
+  kind: 'extension';
+  extensionId: string;    // e.g. 'editor'
+  id: string;             // unique identifier for the instance
+  state: any;             // plugin-specific state
+}
+
+export type PaneLeaf = TerminalLeaf | ExtensionLeaf;
 
 export interface PaneSplit {
   kind: 'split';
@@ -34,6 +49,7 @@ export interface Tab {
   title: string;
   root: PaneNode;
   activeLeafId: string;   // sessionId of the focused pane
+  isSidebarOpen?: boolean;
 }
 
 // ─── App state ───────────────────────────────────────────────────────────────

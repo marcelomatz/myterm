@@ -44,12 +44,15 @@ export function deleteLeafEl(sessionId: string): void {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 export function collectLeaves(node: PaneNode): PaneLeaf[] {
-  if (node.kind === 'leaf') return [node];
+  if (node.kind !== 'split') return [node];
   return [...collectLeaves(node.a), ...collectLeaves(node.b)];
 }
 
-function findLeaf(node: PaneNode, sessionId: string): PaneLeaf | null {
-  if (node.kind === 'leaf') return node.sessionId === sessionId ? node : null;
+export function findLeaf(node: PaneNode, sessionId: string): PaneLeaf | null {
+  if (node.kind !== 'split') {
+    if (node.kind === 'terminal') return node.sessionId === sessionId ? node : null;
+    if (node.kind === 'editor') return node.id === sessionId ? node : null;
+  }
   return findLeaf(node.a, sessionId) ?? findLeaf(node.b, sessionId);
 }
 
@@ -60,38 +63,19 @@ export function renderPane(
   container: HTMLElement,
   _onFocus: (sessionId: string) => void,
 ): void {
-  if (node.kind === 'leaf') {
-    // ── Leaf: mount the persistent pane div into container ──────────────────
-    //
-    // Each session has exactly ONE persistent <div class="pane"> stored in
-    // leafElMap.  We move it into `container` rather than creating/destroying
-    // DOM — this prevents innerHTML='' from accidentally killing the .xterm of
-    // a session that was previously rendered in the same container (e.g. when
-    // switching tabs that share terminalEl).
-
+  if (node.kind === 'terminal') {
     const leafEl = getOrCreateLeafEl(node.sessionId);
-
-    // Clear `container` safely: remove all children EXCEPT leafEl itself
-    // (in a same-tab re-render leafEl might already be a child).
     Array.from(container.children).forEach(c => { if (c !== leafEl) c.remove(); });
+    if (leafEl.parentElement !== container) container.appendChild(leafEl);
 
-    // Move leafEl into container if not already there.
-    if (leafEl.parentElement !== container) {
-      container.appendChild(leafEl);
-    }
-
-    // Ensure class is set (may have been cleared by a previous render).
     container.className = '';
     container.style.display = 'block';
     leafEl.className = 'pane';
 
     if (leafEl.querySelector('.xterm')) {
-      // Terminal already opened in a previous render — just re-fit and focus.
       leafEl.addEventListener('mousedown', () => _onFocus(node.sessionId), { once: true });
       requestAnimationFrame(() => { node.fit.fit(); node.term.focus(); });
     } else {
-      // First render — container is live in the DOM; open the terminal now.
-      // term.open() must only be called once per Terminal instance.
       node.term.open(leafEl);
       leafEl.addEventListener('mousedown', () => _onFocus(node.sessionId), { once: true });
       attachGpuRenderer(node.term, renderer => {
@@ -99,6 +83,26 @@ export function renderPane(
         node.fit.fit();
         node.term.focus();
       });
+    }
+    return;
+  }
+
+  if (node.kind === 'extension') {
+    const leafEl = getOrCreateLeafEl(node.id);
+    Array.from(container.children).forEach(c => { if (c !== leafEl) c.remove(); });
+    if (leafEl.parentElement !== container) container.appendChild(leafEl);
+
+    container.className = '';
+    container.style.display = 'block';
+    leafEl.className = 'pane';
+
+    if (!leafEl.hasAttribute('data-ext-id')) {
+      leafEl.setAttribute('data-ext-id', node.extensionId);
+      leafEl.addEventListener('mousedown', () => _onFocus(node.id));
+      
+      // Dispatch an event so a Svelte coordinator can mount the extension here
+      const evt = new CustomEvent('myterm:mount-extension', { detail: { leaf: node, container: leafEl } });
+      window.dispatchEvent(evt);
     }
     return;
   }
@@ -187,8 +191,9 @@ function attachDividerDrag(
 }
 
 function fitAll(node: PaneNode): void {
-  if (node.kind === 'leaf') {
-    node.fit.fit();
+  if (node.kind !== 'split') {
+    if (node.kind === 'terminal') node.fit.fit();
+    // Editors resize via CSS usually, or via their own layout() method (handled elsewhere).
   } else {
     fitAll(node.a);
     fitAll(node.b);
@@ -206,15 +211,35 @@ export async function splitLeaf(
   activeSessionId: string,
   dir: 'h' | 'v',
 ): Promise<{ newRoot: PaneNode; newLeaf: PaneLeaf }> {
-  // createSession no longer calls term.open() — rendering happens lazily in
-  // renderPane() when the leaf is placed into a live DOM container.
-  const newLeaf = await createSession();
+  const targetLeaf = findLeaf(root, activeSessionId);
+  if (!targetLeaf) throw new Error("Leaf not found");
 
-  const newRoot = replaceLeaf(root, activeSessionId, {
+  let newLeaf: PaneLeaf;
+  if (targetLeaf.kind === 'terminal') {
+    newLeaf = await createSession();
+  } else {
+    // Clone editor state so we get the same files side-by-side.
+    // We share the same EditorFile objects so 'isDirty' state syncs across splits.
+    const activeFile = targetLeaf.files.find(f => f.filePath === targetLeaf.activeFilePath);
+    newLeaf = {
+      kind: 'editor',
+      id: 'editor-' + Date.now() + Math.random().toString(36).substr(2, 9),
+      files: activeFile ? [activeFile] : [],
+      activeFilePath: targetLeaf.activeFilePath
+    };
+  }
+
+  const newRoot = replaceLeaf(root, activeSessionId, dir === 'v' ? {
+    kind: 'split',
+    dir: 'v',
+    ratio: 0.8,
+    a: targetLeaf,
+    b: newLeaf,
+  } : {
     kind: 'split',
     dir,
     ratio: 0.5,
-    a: findLeaf(root, activeSessionId)!,
+    a: targetLeaf,
     b: newLeaf,
   });
 
@@ -234,13 +259,19 @@ export async function removeLeaf(
   return pruneLeaf(root, removeId);
 }
 
-function replaceLeaf(node: PaneNode, id: string, replacement: PaneNode): PaneNode {
-  if (node.kind === 'leaf') return node.sessionId === id ? replacement : node;
+export function replaceLeaf(node: PaneNode, id: string, replacement: PaneNode): PaneNode {
+  if (node.kind !== 'split') {
+    const isTarget = node.kind === 'terminal' ? node.sessionId === id : node.id === id;
+    return isTarget ? replacement : node;
+  }
   return { ...node, a: replaceLeaf(node.a, id, replacement), b: replaceLeaf(node.b, id, replacement) };
 }
 
 function pruneLeaf(node: PaneNode, id: string): PaneNode | null {
-  if (node.kind === 'leaf') return node.sessionId === id ? null : node;
+  if (node.kind !== 'split') {
+    const isTarget = node.kind === 'terminal' ? node.sessionId === id : node.id === id;
+    return isTarget ? null : node;
+  }
   const a = pruneLeaf(node.a, id);
   const b = pruneLeaf(node.b, id);
   if (!a) return b;
@@ -252,6 +283,8 @@ function pruneLeaf(node: PaneNode, id: string): PaneNode | null {
 
 /** Hooks write + resize on a leaf to its backend session. */
 export function wireLeaf(leaf: PaneLeaf): void {
+  if (leaf.kind !== 'terminal') return;
+
   leaf.term.onData(data => Write(leaf.sessionId, data));
   leaf.term.onResize(({ cols, rows }) => Resize(leaf.sessionId, cols, rows));
 

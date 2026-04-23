@@ -8,7 +8,7 @@
     saveSettings,
     getPreset,
   } from "../../../domain/settings";
-  import { applySettingsToAll } from "../../settings-apply";
+  import { applySettingsToAll, buildThemeVars } from "../../settings-apply";
   import type { PaneLeaf } from "../../../domain/types";
   import {
     DetectShells,
@@ -45,52 +45,6 @@
   let themeVars = $state<Record<string, string>>({});
   let panelFont = $derived(draft.fontFamily);
 
-  function colorWithAlpha(hex: string, alpha: number): string {
-    const m = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(hex.trim());
-    if (!m) return hex;
-    return `rgba(${parseInt(m[1], 16)},${parseInt(m[2], 16)},${parseInt(m[3], 16)},${alpha})`;
-  }
-
-  function buildThemeVars(presetId: string): Record<string, string> {
-    const t = getPreset(presetId).theme;
-    const fg = t.foreground ?? "#a1a1aa";
-    const bg = t.background ?? "#09090b";
-    const cur = t.cursor ?? fg;
-    const cyn = t.cyan ?? fg;
-    const bCy = t.brightCyan ?? cyn;
-    const grn = t.green ?? fg;
-    const red = t.red ?? "#ef4444";
-    const yel = t.yellow ?? "#eab308";
-    const blu = t.blue ?? "#3b82f6";
-    const mag = t.magenta ?? "#d946ef";
-    const bGrn = t.brightGreen ?? grn;
-    const bRed = t.brightRed ?? red;
-    const bYel = t.brightYellow ?? yel;
-    const bBlu = t.brightBlue ?? blu;
-    const bMag = t.brightMagenta ?? mag;
-    const bBlk = t.brightBlack ?? colorWithAlpha(fg, 0.35);
-    return {
-      "--tset-bg": bg,
-      "--tset-fg": fg,
-      "--tset-cursor": cur,
-      "--tset-cyan": bCy,
-      "--tset-accent": grn,
-      "--tset-dim": colorWithAlpha(fg, 0.2),
-      "--tset-dimfg": colorWithAlpha(fg, 0.45),
-      "--tset-red": red,
-      "--tset-green": grn,
-      "--tset-yellow": yel,
-      "--tset-blue": blu,
-      "--tset-magenta": mag,
-      "--tset-br-red": bRed,
-      "--tset-br-green": bGrn,
-      "--tset-br-yellow": bYel,
-      "--tset-br-blue": bBlu,
-      "--tset-br-magenta": bMag,
-      "--tset-br-black": bBlk,
-    };
-  }
-
   // ── helpers ─────────────────────────────────────────────────────────────
   function apply(updater: (d: AppSettings) => void): void {
     updater(draft);
@@ -106,6 +60,11 @@
   function onFontSize(v: number) {
     apply((d) => {
       d.fontSize = v;
+    });
+  }
+  function onFiletreeFontSize(v: number) {
+    apply((d) => {
+      d.filetreeFontSize = v;
     });
   }
   function onLineHeight(v: number) {
@@ -402,6 +361,25 @@
                   onFontSize(Number((e.target as HTMLInputElement).value))}
               />
               <span class="tset-range-badge">{draft.fontSize}</span>
+            </span>
+          </span>
+        </div>
+        <div class="tset-row">
+          <span class="tset-key">Filetree Font Size </span>
+          <span class="tset-sep"> │ </span>
+          <span class="tset-val">
+            <span class="tset-range-wrap">
+              <input
+                type="range"
+                class="tset-range"
+                min="10"
+                max="24"
+                step="1"
+                value={draft.filetreeFontSize}
+                oninput={(e) =>
+                  onFiletreeFontSize(Number((e.target as HTMLInputElement).value))}
+              />
+              <span class="tset-range-badge">{draft.filetreeFontSize}</span>
             </span>
           </span>
         </div>

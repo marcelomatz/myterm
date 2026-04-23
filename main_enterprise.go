@@ -1,4 +1,4 @@
-//go:build !enterprise
+//go:build enterprise
 
 package main
 
@@ -12,6 +12,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
 	wails_app "myterm/internal/adapters/wails"
+	"myterm/enterprise/backend/enterprise"
 )
 
 //go:embed all:frontend/dist
@@ -40,6 +41,8 @@ func main() {
 
 		Bind: []interface{}{
 			app,
+			enterprise.NewFileService(),
+			enterprise.NewGitService(),
 		},
 
 		// Platform-specific tweaks.
