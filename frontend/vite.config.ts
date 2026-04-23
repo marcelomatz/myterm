@@ -23,7 +23,9 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@enterprise': hasEnterprise ? enterprisePath : path.resolve(__dirname, "./src/enterprise_stub"),
+      '@enterprise': hasEnterprise && hasEnterpriseBindings 
+        ? enterprisePath 
+        : path.resolve(__dirname, "./src/enterprise_stub"),
       '@bindings/enterprise': hasEnterpriseBindings
         ? enterpriseBindingsPath
         : path.resolve(__dirname, "./src/enterprise_stub/bindings"),
