@@ -144,10 +144,10 @@ export class CommandTracker {
         'function prompt {',
         '  $exit = $LASTEXITCODE',
         '  $host.UI.RawUI.WindowTitle = (Get-Location).Path',
-        '  Write-Host -NoNewline "`e]133;D;$exit`a"',
-        '  Write-Host -NoNewline "`e]133;A`a"',
+        '  Write-Host -NoNewline "$([char]27)]133;D;$exit$([char]7)"',
+        '  Write-Host -NoNewline "$([char]27)]133;A$([char]7)"',
         '  $pwdPath = (Get-Location).ProviderPath -replace "\\\\", "/"',
-        '  Write-Host -NoNewline "`e]7;file:///$pwdPath`a"',
+        '  Write-Host -NoNewline "$([char]27)]7;file:///$pwdPath$([char]7)"',
         '  "PS $($executionContext.SessionState.Path.CurrentLocation)$(\'>\'*($nestedPromptLevel+1)) "',
         '}',
       ].join('; ') + '\r'
