@@ -83,7 +83,6 @@ export async function createSession(
   const startupPath = s.startupPath || '~';
 
   const sessionId = await NewSession(effectiveShell, startupPath);
-  if (!sessionId) throw new Error('NewSession returned empty id');
 
   const preset = getPreset(s.colorPresetId);
 

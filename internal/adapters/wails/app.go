@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -165,20 +166,22 @@ func (a *App) DetectShells() []string {
 // value is rejected to prevent arbitrary binary execution via the RPC bridge.
 // Pass an empty string to auto-detect the best shell.
 // cwd is the directory the shell should start in.
-func (a *App) NewSession(shell string, cwd string) string {
+func (a *App) NewSession(shell string, cwd string) (string, error) {
 	if shell != "" {
 		allowed := pty.DetectShells()
 		if !contains(allowed, shell) {
-			log.Printf("NewSession rejected unknown shell %q", shell)
-			return ""
+			err := fmt.Errorf("NewSession rejected unknown shell %q (allowed: %v)", shell, allowed)
+			log.Printf("%v", err)
+			return "", err
 		}
 	}
 	id, err := a.sessions.NewSession(shell, cwd)
 	if err != nil {
+		err = fmt.Errorf("failed to create session: %w", err)
 		log.Printf("NewSession error: %v", err)
-		return ""
+		return "", err
 	}
-	return id
+	return id, nil
 }
 
 // CloseSession terminates the shell and PTY for the given session.
@@ -214,8 +217,14 @@ func (a *App) Resize(id string, cols, rows int) error {
 // contains reports whether s is present in the slice.
 func contains(slice []string, s string) bool {
 	for _, v := range slice {
-		if v == s {
+		if strings.EqualFold(v, s) {
 			return true
+		}
+		if runtime.GOOS == "windows" {
+			// allow "cmd" to match "cmd.exe", etc.
+			if strings.EqualFold(v, s+".exe") {
+				return true
+			}
 		}
 	}
 	return false
