@@ -605,7 +605,7 @@
   let sessionCwdMap = $state<Map<string, string>>(new Map());
 
   function toggleSidebar() {
-    if (extensionRegistry.getSidebarViews().length === 0) return;
+    if (!extensionRegistry.isEnterpriseMode) return;
     const t = activeTab();
     if (t) {
       t.isSidebarOpen = !t.isSidebarOpen;
