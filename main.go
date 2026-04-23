@@ -21,7 +21,7 @@ func main() {
 	app := wails_app.NewApp()
 
 	err := wails.Run(&options.App{
-		Title:     "MyTerm",
+		Title:     "myTerm",
 		Width:     1300,
 		Height:    700,
 		MinWidth:  400,
