@@ -107,6 +107,7 @@ export interface AppSettings {
   // Shell default
   defaultShell: string;   // empty = auto-detect
   startupPath: string;    // default start path
+  defaultEditorCmd: string; // command used to open files from the sidebar
   // Clipboard
   copyOnSelect: boolean;  // copy to clipboard on text selection
   // AI Integration
@@ -126,6 +127,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   scrollback: 1000,
   defaultShell: '',
   startupPath: '~',
+  defaultEditorCmd: 'vim',
   copyOnSelect: false,
   ollamaHost: 'http://127.0.0.1:11434',
   ollamaModel: 'llama3',

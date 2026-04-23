@@ -9,6 +9,7 @@ import { createCommandTracker, CommandTracker } from './command-tracker';
 import type { PaneLeaf } from '../domain/types';
 import { getSettings, getPreset } from '../domain/settings';
 import { ensureFont } from '../domain/font-loader';
+import { BrowserOpenURL } from '../../wailsjs/runtime/runtime';
 
 // ─── GPU renderer ─────────────────────────────────────────────────────────────
 
@@ -103,7 +104,9 @@ export async function createSession(
 
   const fit = new FitAddon();
   term.loadAddon(fit);
-  term.loadAddon(new WebLinksAddon());
+  term.loadAddon(new WebLinksAddon((event: MouseEvent, uri: string) => {
+    BrowserOpenURL(uri);
+  }));
 
   const tracker = createCommandTracker(sessionId);
   term.onData(data => tracker.trackInput(data));

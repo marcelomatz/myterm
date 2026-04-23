@@ -509,17 +509,31 @@
           </div>
         {/if}
       </div>
+
       <div class="tset-row">
-        <span class="tset-key">{dict.startupPath} </span>
+        <span class="tset-key" title="Default directory for new sessions">Startup Path</span>
         <span class="tset-sep"> │ </span>
         <span class="tset-val">
           <input
             type="text"
             class="tset-input"
             value={draft.startupPath}
-            onchange={(e) =>
-              onStartupPath((e.target as HTMLInputElement).value)}
+            onchange={(e) => apply(d => d.startupPath = (e.target as HTMLInputElement).value)}
             placeholder="~"
+          />
+        </span>
+      </div>
+
+      <div class="tset-row">
+        <span class="tset-key" title="Command used to open files from Sidebar">Default Editor</span>
+        <span class="tset-sep"> │ </span>
+        <span class="tset-val">
+          <input
+            type="text"
+            class="tset-input"
+            value={draft.defaultEditorCmd}
+            onchange={(e) => apply(d => d.defaultEditorCmd = (e.target as HTMLInputElement).value)}
+            placeholder="vim"
           />
         </span>
       </div>

@@ -5,6 +5,7 @@
   import SettingsPanel from './ui/features/settings/SettingsPanel.svelte';
   import TerminalError from './ui/components/TerminalError.svelte';
   import ConfirmCloseModal from './ui/components/ConfirmCloseModal.svelte';
+  import StatusBar from './ui/components/StatusBar.svelte';
 
   import { createSession, destroySession } from './ui/session';
   import {
@@ -409,8 +410,16 @@
       if (info?.hasUpdate) updateInfo = info;
     }).catch(() => { /* network unavailable — ignore */ });
 
+    const handleCwdChange = (e: Event) => {
+      const ce = e as CustomEvent;
+      sessionCwdMap.set(ce.detail.sessionId, ce.detail.cwd);
+      sessionCwdMap = new Map(sessionCwdMap);
+    };
+    window.addEventListener('myterm:cwd-change', handleCwdChange);
+
     return () => {
       window.removeEventListener('keydown', handleCtrlComma, true);
+      window.removeEventListener('myterm:cwd-change', handleCwdChange);
     };
   });
 
@@ -446,6 +455,19 @@
     ro.observe(terminalEl);
     return () => ro.disconnect();
   });
+  import Sidebar from './ui/components/Sidebar.svelte';
+
+  let isSidebarOpen = $state(false);
+  let sessionCwdMap = $state<Map<string, string>>(new Map());
+  
+  function toggleSidebar() {
+    isSidebarOpen = !isSidebarOpen;
+  }
+
+  // Derive rootPath for Sidebar
+  const activeRootPath = $derived(
+    activeLeaf() ? sessionCwdMap.get(activeLeaf()!.sessionId) || '~' : '~'
+  );
 </script>
 
 <svelte:window onkeydown={onKeydown} />
@@ -460,25 +482,41 @@
   onSettings={toggleSettingsTab}
 />
 
-<div id="workspace" bind:this={workspaceEl}>
-  <!-- Svelte-controlled overlays — never cleared by renderWorkspace() -->
-  {#if showWelcome}
-    <WelcomeScreen
-      updateVersion={updateInfo?.hasUpdate ? updateInfo.version : undefined}
-      updateUrl={updateInfo?.hasUpdate ? updateInfo.url : undefined}
-      onDismissUpdate={() => updateInfo = null}
+<div id="workspace" bind:this={workspaceEl} style="display: flex; flex-direction: row;">
+  {#if isSidebarOpen && showTerminal && activeTabId !== SETTINGS_TAB_ID}
+    <Sidebar 
+      rootPath={activeRootPath} 
+      onClose={() => isSidebarOpen = false} 
+      {activeLeaf} 
     />
-  {:else if showSettings}
-    <SettingsPanel {getLeaves} onRebuild={renderWorkspace} />
   {/if}
-  <!-- Imperative terminal slot — renderWorkspace() only ever touches this div -->
-  <div
-    id="terminal-slot"
-    bind:this={terminalEl}
-    style:display={showTerminal ? 'block' : 'none'}
-    style:position="absolute"
-    style:inset="0"
-  ></div>
+
+  <div style="flex: 1; position: relative; height: 100%;">
+    <!-- Svelte-controlled overlays — never cleared by renderWorkspace() -->
+    {#if showWelcome}
+      <WelcomeScreen
+        updateVersion={updateInfo?.hasUpdate ? updateInfo.version : undefined}
+        updateUrl={updateInfo?.hasUpdate ? updateInfo.url : undefined}
+        onDismissUpdate={() => updateInfo = null}
+      />
+    {:else if showSettings}
+      <SettingsPanel {getLeaves} onRebuild={renderWorkspace} />
+    {/if}
+    <!-- Imperative terminal slot — renderWorkspace() only ever touches this div -->
+    <div
+      id="terminal-slot"
+      bind:this={terminalEl}
+      style:display={showTerminal ? 'block' : 'none'}
+      style:position="absolute"
+      style:inset="0 0 32px 0"
+    ></div>
+
+    {#if showTerminal && activeTabId !== SETTINGS_TAB_ID}
+      <div style="position: absolute; bottom: 0; left: 0; right: 0;">
+        <StatusBar sessionId={activeLeaf()?.sessionId} onToggleSidebar={toggleSidebar} />
+      </div>
+    {/if}
+  </div>
 </div>
 
 <!-- ── Close-confirmation modal ──────────────────────────────────────────── -->
