@@ -38,20 +38,19 @@
       "",
       `  myterm ${version} `,
       "",
-      "  ┌──────────────────────────────────────────────────────────────┐",
-      `  │  ${dict.quickStart.padEnd(55)} │`,
-      "  │                                                         │",
-      `  │  ${dict.clickNewTab.padEnd(55)} │`,
-      `  │  ${dict.keyNewTab.padEnd(55)} │`,
-      `  │  ${dict.keySplitH.padEnd(55)} │`,
-      `  │  ${dict.keySplitV.padEnd(55)} │`,
-      `  │  ${dict.keyClosePane.padEnd(55)} │`,
-      `  │  ${dict.keyCycleTabs.padEnd(55)} │`,
-      `  │  ${dict.keySettings.padEnd(55)} │`,
-      "  └──────────────────────────────────────────────────────────────┘",
+      "  ┌──────────────────────────────────────────────────────────────",
+      `  │  ${dict.quickStart}`,
+      "  │",
+      `  │  ${dict.clickNewTab}`,
+      `  │  ${dict.keyNewTab}`,
+      `  │  ${dict.keySplitH}`,
+      `  │  ${dict.keySplitV}`,
+      `  │  ${dict.keyClosePane}`,
+      `  │  ${dict.keyCycleTabs}`,
+      `  │  ${dict.keySettings}`,
+      "  └──────────────────────────────────────────────────────────────",
       "",
       `  ${dict.subtitle}`,
-      "",
     ].join("\n"),
   );
 
@@ -179,12 +178,13 @@
   .welcome-banner {
     white-space: pre;
     font-size: clamp(5px, 1.15vw, 11px);
-    line-height: 1.2;
+    line-height: 1;
     color: #ffb300;
     text-shadow: 0 0 6px rgba(255, 179, 0, 0.65);
     animation: ws-flicker 8s infinite;
     margin-bottom: 10px;
-    letter-spacing: 0.02em;
+    letter-spacing: 0;
+    font-family: "Consolas", "Courier New", monospace;
   }
 
   .welcome-lines {
