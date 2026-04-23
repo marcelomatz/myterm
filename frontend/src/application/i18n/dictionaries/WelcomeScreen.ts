@@ -1,7 +1,7 @@
 export const dictWelcomeScreen = {
   "pt-BR": {
     quickStart: "INÍCIO RÁPIDO",
-    clickNewTab: "Clique em [+]            Abrir uma nova aba no terminal",
+    clickNewTab: "Clique em [+]          Abrir uma nova aba no terminal",
     keyNewTab: "Ctrl+Shift+T           Nova aba (mesmo shell)",
     keySplitH: "Ctrl+Shift+D           Dividir verticalmente",
     keySplitV: "Ctrl+Shift+E           Dividir horizontalmente",

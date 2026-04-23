@@ -1,7 +1,9 @@
 <script lang="ts">
   import {
-    Quit, WindowMinimise, WindowToggleMaximise,
-  } from '../../../wailsjs/runtime/runtime';
+    Quit,
+    WindowMinimise,
+    WindowToggleMaximise,
+  } from "../../../wailsjs/runtime/runtime";
 
   interface Props {
     onSettings: () => void;
@@ -11,13 +13,21 @@
 
 <div id="titlebar">
   <div class="controls">
-    <button class="wbtn" id="btn-close" title="Close"    onclick={Quit}></button>
-    <button class="wbtn" id="btn-min"   title="Minimise" onclick={WindowMinimise}></button>
-    <button class="wbtn" id="btn-max"   title="Maximise" onclick={WindowToggleMaximise}></button>
+    <button class="wbtn" id="btn-close" title="Close" onclick={Quit}></button>
+    <button class="wbtn" id="btn-min" title="Minimise" onclick={WindowMinimise}
+    ></button>
+    <button
+      class="wbtn"
+      id="btn-max"
+      title="Maximise"
+      onclick={WindowToggleMaximise}
+    ></button>
   </div>
-  <span class="title">myterm</span>
+  <span class="title">myTerm</span>
   <div class="titlebar-right">
-    <button id="settings-btn" title="Settings (Ctrl+,)" onclick={onSettings}>⚙</button>
+    <button id="settings-btn" title="Settings (Ctrl+,)" onclick={onSettings}
+      >⚙</button
+    >
   </div>
 </div>
 

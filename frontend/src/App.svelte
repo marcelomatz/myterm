@@ -291,7 +291,7 @@
     if (tab) tab.title = title;
   }
 
-  // ── Keyboard shortcuts ─────────────────────────────────────────────────────
+  let _lastTabCycle = 0;
   function onKeydown(e: KeyboardEvent): void {
     if (e.repeat) return;
 
@@ -322,6 +322,10 @@
     // Ctrl+Tab / Ctrl+Shift+Tab — cycle tabs
     if (e.ctrlKey && (e.key === 'Tab' || e.code === 'Tab')) {
       e.preventDefault();
+      const now = Date.now();
+      if (now - _lastTabCycle < 150) return;
+      _lastTabCycle = now;
+      
       const idx = tabs.findIndex(t => t.id === activeTabId);
       const next = e.shiftKey
         ? (idx - 1 + tabs.length) % tabs.length
