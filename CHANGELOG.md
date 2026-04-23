@@ -7,6 +7,16 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ---
 
+## [0.5.3] — 2026-04-23
+
+### 🐛 Correções
+- Corrigido problema ao iniciar `cmd` e `powershell` no Windows que resultava em erro *file does not exist*, forçando a resolução por caminhos absolutos (`exec.LookPath`).
+- Atualizadas as sequências de escape OSC no script de integração para garantir suporte e formatação corretos no prompt do **Windows PowerShell 5.1** (`powershell.exe`).
+- Tornada a correspondência de nomes de executáveis de shell *case-insensitive* no Windows para prevenir falhas de validação estritas de segurança (`contains`).
+- Melhorado o repasse de erros do backend Go para o frontend (Wails) para que falhas de `NewSession` exibam o motivo exato em vez de um erro genérico.
+
+---
+
 ## [0.5.2] — 2026-04-23
 
 ### ✨ Adicionado
@@ -109,11 +119,12 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Tema escuro com accent amarelo (#ffd700)
 - Build para **Windows** (`.exe` portátil)
 
+[Unreleased]: https://github.com/marcelomatz/myterm/compare/v0.5.3...HEAD
+[0.5.3]: https://github.com/marcelomatz/myterm/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/marcelomatz/myterm/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/marcelomatz/myterm/compare/v0.5.0...v0.5.1
-[0.5.0]: https://github.com/marcelomatz/myterm/compare/v0.3.1...v0.5.0
+[0.5.0]: https://github.com/marcelomatz/myterm/releases/tag/v0.5.0
 [0.3.1]: https://github.com/marcelomatz/myterm/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/marcelomatz/myterm/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/marcelomatz/myterm/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/marcelomatz/myterm/releases/tag/v0.1.0
-
