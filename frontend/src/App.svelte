@@ -603,7 +603,6 @@
   import Sidebar from './ui/components/Sidebar.svelte';
 
   let sessionCwdMap = $state<Map<string, string>>(new Map());
-  import { extensionRegistry } from './application/extension.registry';
 
   function toggleSidebar() {
     if (extensionRegistry.getSidebarViews().length === 0) return;
