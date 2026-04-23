@@ -6,6 +6,12 @@ import path from "path";
 
 const enterprisePath = path.resolve(__dirname, "../enterprise/frontend/src/enterprise");
 const hasEnterprise = fs.existsSync(enterprisePath);
+const enterpriseBindingsPath = path.resolve(__dirname, "./wailsjs/go/enterprise");
+const hasEnterpriseBindings = fs.existsSync(enterpriseBindingsPath);
+
+if (hasEnterprise && !hasEnterpriseBindings) {
+  console.warn("⚠️  Enterprise folder found, but Wails bindings are missing! Run 'wails dev -tags enterprise' to generate them.");
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -18,8 +24,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@enterprise': hasEnterprise ? enterprisePath : path.resolve(__dirname, "./src/enterprise_stub"),
-      '@bindings/enterprise': hasEnterprise 
-        ? path.resolve(__dirname, "./wailsjs/go/enterprise") 
+      '@bindings/enterprise': hasEnterpriseBindings
+        ? enterpriseBindingsPath
         : path.resolve(__dirname, "./src/enterprise_stub/bindings"),
       '@core': path.resolve(__dirname, "./src"),
       'monaco-editor': path.resolve(__dirname, "node_modules/monaco-editor")
