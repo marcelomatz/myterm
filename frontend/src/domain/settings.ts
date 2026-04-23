@@ -97,6 +97,7 @@ export interface AppSettings {
   // Appearance
   fontFamily: string;
   fontSize: number;       // 8–28
+  filetreeFontSize: number; // 10-24
   lineHeight: number;     // 1.0–2.0
   cursorBlink: boolean;
   cursorStyle: 'block' | 'bar' | 'underline';
@@ -120,6 +121,7 @@ const STORAGE_KEY = 'myterm.settings';
 export const DEFAULT_SETTINGS: AppSettings = {
   fontFamily: '"Cascadia Code", monospace',
   fontSize: 14,
+  filetreeFontSize: 13,
   lineHeight: 1.2,
   cursorBlink: true,
   cursorStyle: 'block',
@@ -154,6 +156,7 @@ export function loadSettings(): AppSettings {
 export function saveSettings(s: AppSettings): void {
   _settings = s;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  window.dispatchEvent(new CustomEvent('myterm:settings-changed', { detail: s }));
 }
 
 /** Returns the ColorPreset for the given id, falling back to the first preset. */

@@ -2,23 +2,31 @@
   import { onMount, onDestroy } from 'svelte';
   import { getSettings } from '../../domain/settings';
   import { AnalyzeDirectory } from '../../infrastructure/wails/backend';
-  import type { application } from '../../infrastructure/wails/backend';
+  import type { enterprise } from '../../infrastructure/wails/backend';
+  import type { PaneLeaf } from '../../domain/types';
 
   interface Props {
-    sessionId: string | undefined;
+    leaf: PaneLeaf | undefined;
     onToggleSidebar?: () => void;
   }
-  const { sessionId, onToggleSidebar }: Props = $props();
+  const { leaf, onToggleSidebar }: Props = $props();
+
+  let sessionId = $derived(leaf?.kind === 'terminal' ? leaf.sessionId : undefined);
+  let editorId = $derived(leaf?.kind === 'editor' ? leaf.id : undefined);
 
   let cwd = $state<string>('');
-  let stats = $state<application.DirectoryStats | null>(null);
+  let stats = $state<enterprise.DirectoryStats | null>(null);
   let isAnalyzing = $state(false);
   let analyzeError = $state<string>('');
   let lastExitCode = $state<number>(0);
   let processingTimeMs = $state<number>(0);
 
+  let cursorLine = $state<number>(1);
+  let cursorCol = $state<number>(1);
+
   let cwdListener: (e: Event) => void;
   let commandListener: (e: Event) => void;
+  let cursorListener: (e: Event) => void;
 
   function formatBytes(bytes: number): string {
     if (bytes === 0) return '0 B';
@@ -86,13 +94,23 @@
       }
     };
 
+    cursorListener = (e: Event) => {
+      const ce = e as CustomEvent;
+      if (ce.detail.leafId === editorId) {
+        cursorLine = ce.detail.line;
+        cursorCol = ce.detail.column;
+      }
+    };
+
     window.addEventListener('myterm:cwd-change', cwdListener);
     window.addEventListener('myterm:command-finish', commandListener);
+    window.addEventListener('myterm:editor-cursor', cursorListener);
   });
 
   onDestroy(() => {
     window.removeEventListener('myterm:cwd-change', cwdListener);
     window.removeEventListener('myterm:command-finish', commandListener);
+    window.removeEventListener('myterm:editor-cursor', cursorListener);
   });
 </script>
 
@@ -143,19 +161,24 @@
         {analyzeError}
       </div>
     {/if}
+    {#if editorId}
+      <div class="item cursor-pos" title="Cursor Position">
+        Ln {cursorLine}, Col {cursorCol}
+      </div>
+    {/if}
   </div>
 </div>
 
 <style>
   .status-bar {
-    height: 32px;
+    height: 24px;
     background: rgba(var(--bg-rgb, 15, 23, 42), 0.85);
     backdrop-filter: blur(8px);
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 12px;
+    padding: 0 8px;
     font-family: var(--font-family, monospace);
     font-size: 11px;
     color: var(--fg, #cbd5e1);

@@ -221,15 +221,6 @@ func contains(slice []string, s string) bool {
 	return false
 }
 
-// AnalyzeDirectory returns basic statistics about the files in the given directory.
-func (a *App) AnalyzeDirectory(path string) (*application.DirectoryStats, error) {
-	return a.sessions.AnalyzeDirectory(path)
-}
-
-// ListDirectory returns the files and folders inside the given directory for the File Explorer.
-func (a *App) ListDirectory(path string) ([]application.FileNode, error) {
-	return a.sessions.ListDirectory(path)
-}
 
 type OllamaTagsResponse struct {
 	Models []struct {
@@ -311,3 +302,5 @@ func (a *App) GenerateOllamaResponse(host, model, prompt string) error {
 	wailsRuntime.EventsEmit(a.ctx, "ollama-done")
 	return nil
 }
+
+

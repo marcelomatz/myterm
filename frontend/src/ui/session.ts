@@ -198,7 +198,7 @@ export async function createSession(
   }
 
   // renderer is null until renderPane calls term.open() + attachGpuRenderer().
-  return { kind: 'leaf', sessionId, shell: effectiveShell, term, fit, renderer: null };
+  return { kind: 'terminal', sessionId, shell: effectiveShell, term, fit, renderer: null };
 }
 
 /**
@@ -210,6 +210,7 @@ export async function createSession(
  *   "Cannot read properties of undefined (reading '_isDisposed')"
  */
 export async function destroySession(leaf: PaneLeaf): Promise<void> {
+  if (leaf.kind === 'extension') return;
   EventsOff('terminal-output:' + leaf.sessionId);
   EventsOff('terminal-exit:' + leaf.sessionId);
   try { await CloseSession(leaf.sessionId); } catch { /* already closed */ }
