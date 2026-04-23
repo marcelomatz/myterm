@@ -7,6 +7,13 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ---
 
+## [0.5.1] — 2026-04-23
+
+### 🐛 Correções de Bugs
+- **CI/CD Build**: Correção do caminho do `CurrentVersion` no workflow de release do GitHub Actions (`-ldflags`) que causava a compilação mostrar a versão como `dev` ao invés da versão real, em decorrência da refatoração da Clean Architecture.
+
+---
+
 ## [0.5.0] — 2026-04-23
 
 ### ✨ Funcionalidades

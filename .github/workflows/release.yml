@@ -106,7 +106,7 @@ jobs:
         run: |
           Write-Host "makensis path: $(Get-Command makensis | Select-Object -ExpandProperty Source)"
           wails build --nsis --platform windows/amd64 `
-            -ldflags "-X myterm/api.CurrentVersion=${{ github.ref_name }}"
+            -ldflags "-X myterm/internal/adapters/wails.CurrentVersion=${{ github.ref_name }}"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Preparar assets Windows
@@ -200,7 +200,7 @@ jobs:
       - name: Build macOS universal
         run: |
           wails build --platform darwin/universal \
-            -ldflags "-X myterm/api.CurrentVersion=${{ github.ref_name }}"
+            -ldflags "-X myterm/internal/adapters/wails.CurrentVersion=${{ github.ref_name }}"
 
       - name: Criar DMG
         run: |
@@ -279,7 +279,7 @@ jobs:
       - name: Build Linux
         run: |
           wails build --platform linux/amd64 \
-            -ldflags "-X myterm/api.CurrentVersion=${{ github.ref_name }}"
+            -ldflags "-X myterm/internal/adapters/wails.CurrentVersion=${{ github.ref_name }}"
 
       - name: Criar tar.gz
         run: |
