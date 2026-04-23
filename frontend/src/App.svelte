@@ -305,8 +305,8 @@
 
     if (e.ctrlKey && e.shiftKey) {
       switch (e.key) {
-        case 'D': e.preventDefault(); splitActive('h'); break;
-        case 'E': e.preventDefault(); splitActive('v'); break;
+        case 'D': e.preventDefault(); splitActive('v'); break;
+        case 'E': e.preventDefault(); splitActive('h'); break;
         case 'W':
         case 'w': e.preventDefault(); closeActivePane(); break;
         case 'T': e.preventDefault(); addTab({ shell: activeShell() }); break;
@@ -320,7 +320,7 @@
     }
 
     // Ctrl+Tab / Ctrl+Shift+Tab — cycle tabs
-    if (e.ctrlKey && e.key === 'Tab') {
+    if (e.ctrlKey && (e.key === 'Tab' || e.code === 'Tab')) {
       e.preventDefault();
       const idx = tabs.findIndex(t => t.id === activeTabId);
       const next = e.shiftKey

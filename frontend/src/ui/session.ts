@@ -156,7 +156,7 @@ export async function createSession(
       const isOurShortcut =
         (ev.shiftKey && 'WwDdEeTt'.includes(ev.key)) ||
         ev.key === ',' ||
-        ev.key === 'Tab';
+        ev.key === 'Tab' || ev.code === 'Tab';
 
       if (isOurShortcut) {
         if (ev.repeat) return false; // suppress repeated shortcut presses
