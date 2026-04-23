@@ -11,8 +11,8 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
-	wails_app "myterm/internal/adapters/wails"
 	"myterm/enterprise/backend/enterprise"
+	wails_app "myterm/internal/adapters/wails"
 )
 
 //go:embed all:frontend/dist
@@ -22,7 +22,7 @@ func main() {
 	app := wails_app.NewApp()
 
 	err := wails.Run(&options.App{
-		Title:     "myTerm",
+		Title:     "myTerm | Enterprise",
 		Width:     1300,
 		Height:    700,
 		MinWidth:  400,

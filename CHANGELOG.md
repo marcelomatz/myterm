@@ -7,6 +7,20 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ---
 
+## [0.5.2] — 2026-04-23
+
+### ✨ Adicionado
+- Instalação automatizada via linha de comando para Windows (`install.ps1`), macOS e Linux (`install.sh`).
+- DownloadCard com suporte à cópia de atalho em 1-clique (bypass de SmartScreen/Gatekeeper).
+- Scripts integrados diretamente nas placas de download do site.
+- Criação de atalho automático no Desktop (Windows) e menu `.desktop` (Linux) via scripts.
+
+### 🎨 Melhorias Visuais
+- Texto do hero atualizado para melhor alinhamento do myTerm como emulador de terminal moderno e rápido.
+- UI aprimorada na caixa de comando de terminal do DownloadCard com destaque visual, hover interativo e badge de recomendação.
+
+---
+
 ## [0.5.1] — 2026-04-23
 
 ### 🐛 Correções de Bugs
@@ -95,6 +109,8 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Tema escuro com accent amarelo (#ffd700)
 - Build para **Windows** (`.exe` portátil)
 
+[0.5.2]: https://github.com/marcelomatz/myterm/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/marcelomatz/myterm/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/marcelomatz/myterm/compare/v0.3.1...v0.5.0
 [0.3.1]: https://github.com/marcelomatz/myterm/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/marcelomatz/myterm/compare/v0.2.0...v0.3.0
