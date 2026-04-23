@@ -17,6 +17,7 @@ export interface SidebarExtension {
 class ExtensionRegistry {
   private panes = new Map<string, PaneExtension>();
   private sidebarViews = new Map<string, SidebarExtension>();
+  public isEnterpriseMode = false;
 
   registerPane(ext: PaneExtension) {
     this.panes.set(ext.id, ext);

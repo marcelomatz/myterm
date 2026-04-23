@@ -19,6 +19,7 @@
   import { i18nStore } from "../../../application/i18n.store.svelte";
   import { dictSettingsPanel } from "../../../application/i18n/dictionaries/SettingsPanel";
   import type { Locale } from "../../../application/i18n.store.svelte";
+  import { extensionRegistry } from "../../../application/extension.registry";
 
   let dict = $derived(dictSettingsPanel[i18nStore.locale]);
 
@@ -364,25 +365,27 @@
             </span>
           </span>
         </div>
-        <div class="tset-row">
-          <span class="tset-key">Filetree Font Size </span>
-          <span class="tset-sep"> │ </span>
-          <span class="tset-val">
-            <span class="tset-range-wrap">
-              <input
-                type="range"
-                class="tset-range"
-                min="10"
-                max="24"
-                step="1"
-                value={draft.filetreeFontSize}
-                oninput={(e) =>
-                  onFiletreeFontSize(Number((e.target as HTMLInputElement).value))}
-              />
-              <span class="tset-range-badge">{draft.filetreeFontSize}</span>
+        {#if extensionRegistry.isEnterpriseMode}
+          <div class="tset-row">
+            <span class="tset-key">Filetree Font Size </span>
+            <span class="tset-sep"> │ </span>
+            <span class="tset-val">
+              <span class="tset-range-wrap">
+                <input
+                  type="range"
+                  class="tset-range"
+                  min="10"
+                  max="24"
+                  step="1"
+                  value={draft.filetreeFontSize}
+                  oninput={(e) =>
+                    onFiletreeFontSize(Number((e.target as HTMLInputElement).value))}
+                />
+                <span class="tset-range-badge">{draft.filetreeFontSize}</span>
+              </span>
             </span>
-          </span>
-        </div>
+          </div>
+        {/if}
         <div class="tset-row">
           <span class="tset-key">{dict.lineHeight} </span>
           <span class="tset-sep"> │ </span>
@@ -502,19 +505,21 @@
         </span>
       </div>
 
-      <div class="tset-row">
-        <span class="tset-key" title="Command used to open files from Sidebar">Default Editor</span>
-        <span class="tset-sep"> │ </span>
-        <span class="tset-val">
-          <input
-            type="text"
-            class="tset-input"
-            value={draft.defaultEditorCmd}
-            onchange={(e) => apply(d => d.defaultEditorCmd = (e.target as HTMLInputElement).value)}
-            placeholder="vim"
-          />
-        </span>
-      </div>
+      {#if extensionRegistry.isEnterpriseMode}
+        <div class="tset-row">
+          <span class="tset-key" title="Command used to open files from Sidebar">Default Editor</span>
+          <span class="tset-sep"> │ </span>
+          <span class="tset-val">
+            <input
+              type="text"
+              class="tset-input"
+              value={draft.defaultEditorCmd}
+              onchange={(e) => apply(d => d.defaultEditorCmd = (e.target as HTMLInputElement).value)}
+              placeholder="vim"
+            />
+          </span>
+        </div>
+      {/if}
 
       <!-- BEHAVIOR -->
       <div class="tset-section">

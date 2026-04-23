@@ -48,8 +48,12 @@
     try {
       stats = await AnalyzeDirectory(path);
     } catch (err) {
-      console.warn("AnalyzeDirectory failed:", err);
-      analyzeError = String(err);
+      if (String(err).includes("Enterprise features disabled")) {
+        analyzeError = '';
+      } else {
+        console.warn("AnalyzeDirectory failed:", err);
+        analyzeError = String(err);
+      }
       stats = null;
     } finally {
       isAnalyzing = false;
