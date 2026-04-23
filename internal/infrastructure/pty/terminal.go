@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync/atomic"
@@ -47,6 +48,14 @@ func (t *Terminal) StartWithID(ctx context.Context, id, shell string, cwd string
 		shell = BestShell()
 	}
 	args := ShellArgs(shell)
+
+	// Ensure the shell is an absolute path. If it's a bare name like "cmd.exe",
+	// go-pty or exec.Cmd might leave it as relative, and cmd.Start() will try
+	// to resolve it against cmd.Dir, resulting in "file does not exist" errors.
+	if absShell, err := exec.LookPath(shell); err == nil {
+		shell = absShell
+	}
+
 	cmd := ptm.Command(shell, args...)
 	cmd.Env = append(os.Environ(), "TERM=xterm-256color")
 
