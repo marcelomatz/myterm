@@ -3,6 +3,14 @@ set -e
 
 echo -e "\033[1;36mIniciando instalacao do myTerm...\033[0m"
 
+# 1. Verifica se esta rodando
+if pgrep -x "myterm" >/dev/null || pgrep -x "myTerm" >/dev/null; then
+  echo -e "\033[1;33mFechando o myTerm em execucao...\033[0m"
+  pkill -x "myterm" || true
+  pkill -x "myTerm" || true
+  sleep 1
+fi
+
 OS="$(uname -s)"
 
 # Busca a ultima release
@@ -24,6 +32,10 @@ if [ "$OS" = "Darwin" ]; then
     exit 1
   fi
 
+  if [ -d "/Applications/myTerm.app" ] || [ -d "/Applications/myterm.app" ]; then
+    echo -e "\033[1;33mmyTerm ja esta instalado. Atualizando para a versao mais recente...\033[0m"
+  fi
+
   TMP_DIR=$(mktemp -d)
   curl -sL -o "$TMP_DIR/myterm.zip" "$DOWNLOAD_URL"
   echo -e "\033[1;36mExtraindo...\033[0m"
@@ -36,6 +48,7 @@ if [ "$OS" = "Darwin" ]; then
   rm -rf "$TMP_DIR"
   
   echo -e "\033[1;32mmyTerm instalado com sucesso em /Applications/myTerm.app!\033[0m"
+  open "https://myterm.marcelomatz.com.br/changelog"
 
 elif [ "$OS" = "Linux" ]; then
   # Linux
@@ -45,12 +58,17 @@ elif [ "$OS" = "Linux" ]; then
     exit 1
   fi
 
+  INSTALL_DIR="$HOME/.local/bin"
+
+  if [ -x "$INSTALL_DIR/myterm" ]; then
+    echo -e "\033[1;33mmyTerm ja esta instalado. Atualizando para a versao mais recente...\033[0m"
+  fi
+
   TMP_DIR=$(mktemp -d)
   curl -sL -o "$TMP_DIR/myterm.tar.gz" "$DOWNLOAD_URL"
   echo -e "\033[1;36mExtraindo...\033[0m"
   tar -xzf "$TMP_DIR/myterm.tar.gz" -C "$TMP_DIR"
   
-  INSTALL_DIR="$HOME/.local/bin"
   mkdir -p "$INSTALL_DIR"
   
   # Remove anterior e copia o novo
@@ -76,6 +94,7 @@ EOF
   rm -rf "$TMP_DIR"
   echo -e "\033[1;32mmyTerm instalado com sucesso!\033[0m"
   echo -e "\033[1;33mCertifique-se de que $INSTALL_DIR esta no seu PATH.\033[0m"
+  xdg-open "https://myterm.marcelomatz.com.br/changelog" 2>/dev/null || true
 
 else
   echo -e "\033[1;31mSistema operacional não suportado: $OS\033[0m"
